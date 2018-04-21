@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tables">
+        <item>CREATE TABLE track (
+            _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            serverId INTEGER,
+            beginAt TEXT NOT NULL,
+            time TEXT NOT NULL,
+            distance INTEGER NOT NULL,
+            tracks TEXT NOT NULL
+            )
+        </item>
+
+        <item>CREATE TABLE notification (
+            _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            executionTime INTEGER NOT NULL,
+            title TEXT NOT NULL
+            )
+        </item>
+    </string-array>
+</resources>

@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Run or Die</string>
+
+    <!-- Strings related to Authorization Screen -->
+    <string name="auth_title">Authorization</string>
+    <string name="auth_et_email_hint">Email</string>
+    <string name="auth_et_firstName_hint">First name</string>
+    <string name="auth_et_lastName_hint">Last name</string>
+    <string name="auth_et_password_hint">Password</string>
+    <string name="auth_et_repeatPassword_hint">Repeat password</string>
+    <string name="auth_btn_signIn_text">Sign in</string>
+    <string name="auth_btn_signUp_text">Sign up</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+
+    <!-- Strings related to Drawer -->
+    <string name="drawer_open">open</string>
+    <string name="drawer_close">close</string>
+    <string name="nav_view_main_title">Main</string>
+    <string name="nav_view_notifications_title">Notifications</string>
+    <string name="nav_view_footer_exit_title">Exit</string>
+
+    <!-- Strings related to Splash Screen -->
+    <string name="splash_title">Run or Die</string>
+
+
+
+
+
+
+
+
+</resources>
