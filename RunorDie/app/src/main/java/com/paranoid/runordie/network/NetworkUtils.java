@@ -125,12 +125,10 @@ public class NetworkUtils {
 
     }
 
-    public static void saveTrack() {
+    public static void saveTrack(Track track) {
         List<PointD> points = new LinkedList<>();
         points.add(new PointD(1, 1));
         points.add(new PointD(3, 1));
-
-        Track track = new Track(null, new Date(), 1000, 10, points);
 
         serverServiceInstance.saveTrack(track).enqueue(new Callback<SaveTrackResponse>() {
             @Override

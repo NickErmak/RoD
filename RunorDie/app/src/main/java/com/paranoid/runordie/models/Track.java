@@ -1,24 +1,31 @@
 package com.paranoid.runordie.models;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.Date;
 import java.util.List;
 
 public class Track {
 
+    public static final String _ID = "_id";
+    public static final String START_TIME = "startTime";
+    public static final String RUN_TIME = "runTime";
+    public static final String DISTANCE = "distance";
+
     private Long id;
-    private Date beginsAt;
-    private long time;
+    private long startTime;
+    private long runTime;
     private int distance;
-    private List<PointD> points;
+    private List<LatLng> points;
 
     public Track(Long id) {
         this.id = id;
     }
 
-    public Track(Long id, Date beginsAt, long time, int distance, List<PointD> points) {
+    public Track(Long id, long startTime, long runTime, int distance, List<LatLng> points) {
         this.id = id;
-        this.beginsAt = beginsAt;
-        this.time = time;
+        this.startTime = startTime;
+        this.runTime = runTime;
         this.distance = distance;
         this.points = points;
     }
@@ -31,20 +38,20 @@ public class Track {
         this.id = id;
     }
 
-    public Date getBeginsAt() {
-        return beginsAt;
+    public long getStartTime() {
+        return startTime;
     }
 
-    public void setBeginsAt(Date beginsAt) {
-        this.beginsAt = beginsAt;
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
-    public long getTime() {
-        return time;
+    public long getRunTime() {
+        return runTime;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setRunTime(long runTime) {
+        this.runTime = runTime;
     }
 
     public int getDistance() {
@@ -55,11 +62,11 @@ public class Track {
         this.distance = distance;
     }
 
-    public List<PointD> getPoints() {
+    public List<LatLng> getPoints() {
         return points;
     }
 
-    public void setPoints(List<PointD> points) {
+    public void setPoints(List<LatLng> points) {
         this.points = points;
     }
 }

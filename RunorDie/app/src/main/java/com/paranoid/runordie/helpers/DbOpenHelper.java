@@ -1,7 +1,6 @@
 package com.paranoid.runordie.helpers;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -19,6 +18,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.e("TAG", "creating database");
         for (int i = 1; i <= DB_VERSION; i++) {
             migrate(db, i);
         }
@@ -26,6 +26,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.e("TAG", "upgrading database");
         while (oldVersion < newVersion) {
             migrate(db, ++oldVersion);
         }

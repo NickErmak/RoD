@@ -3,6 +3,9 @@ package com.paranoid.runordie.activities;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,11 +21,14 @@ import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.Test;
 import com.paranoid.runordie.fragments.AbstractFragment;
+import com.paranoid.runordie.fragments.HomeFragment;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener, AbstractFragment.FragmentLifeCircle{
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -40,7 +46,35 @@ public class MainActivity extends BaseActivity
             }
         });
 
+        //Test.fillDB();
+        Test.createNotification(this);
+        showFragment(HomeFragment.newInstance(), HomeFragment.FRAGMENT_TAG, true);
+
         //TODO: REFRESH DATA FROM SERVER
+    }
+
+    public void showFragment(
+            Fragment frag,
+            String tag,
+            boolean clearBackStack) {
+        //TODO: mb make without tag?
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (clearBackStack) {
+            fragmentManager.popBackStack(
+                    null,
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+            );
+        }
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.main_frame_fragContainer, frag, tag);
+       /* if (!tag.equals(App.getInstance().getState().getCurrentFragmentTag())) {
+            transaction.addToBackStack(tag);
+            App.getInstance().getState().setCurrentFragmentTag(tag);
+        }*/
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        transaction.commit();
     }
 
     private void setupDrawerLayout() {
@@ -89,5 +123,10 @@ public class MainActivity extends BaseActivity
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    public void onFragmentStart(String title) {
+        setActionBarTitle(title);
     }
 }

@@ -4,10 +4,10 @@
         <item>CREATE TABLE track (
             _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             serverId INTEGER,
-            beginAt TEXT NOT NULL,
-            time TEXT NOT NULL,
+            startTime INTEGER NOT NULL,
+            runTime INTEGER NOT NULL,
             distance INTEGER NOT NULL,
-            tracks TEXT NOT NULL
+            points TEXT NOT NULL
             )
         </item>
 
