@@ -19,15 +19,15 @@
 
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/frag_home_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="8dp"
-            android:src="@drawable/googleg_standard_color_18"
+            android:layout_margin="25dp"
+            android:src="@drawable/ic_fab"
             app:layout_behavior="com.paranoid.runordie.behavior.ScrollFABBehavior"
-            android:clickable="true"
-            app:backgroundTint="@color/app_primary"/>
+            app:fabSize="normal"
+            android:clickable="true"/>
         <!--
         android:layout_margin="@dimen/fab_margin"
        "

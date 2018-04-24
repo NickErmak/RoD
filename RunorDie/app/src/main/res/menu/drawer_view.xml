@@ -9,9 +9,5 @@
             android:id="@+id/nav_notifications"
             android:title="@string/nav_view_notifications_title" />
 
-        <item
-            android:id="@+id/nav_notificatisadfons"
-            android:title="Exit" />
-
     </group>
 </menu>

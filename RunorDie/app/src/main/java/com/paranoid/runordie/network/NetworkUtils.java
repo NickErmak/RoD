@@ -17,6 +17,8 @@ import com.paranoid.runordie.models.httpResponses.TrackResponse;
 import com.paranoid.runordie.network.interceptors.AuthInterceptor;
 
 import com.paranoid.runordie.network.services.ServerService;
+import com.paranoid.runordie.utils.BroadcastUtils;
+import com.paranoid.runordie.utils.PreferenceUtils;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -59,14 +61,21 @@ public class NetworkUtils {
         serverServiceInstance = retrofit.create(ServerService.class);
     }
 
-    public static void login() {
-        User user = new User("atory29@yandex.ru", "k11112222K");
+    public static void login(final String email, final String password) {
+       // User user = new User("atory29@yandex.ru", "k11112222K");
+        User user = new User(email, password);
         serverServiceInstance.login(user).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                Log.e("TAG", "response = " + response.body().toString());
-                App.getInstance().getState().setToken(response.body().getToken());
-                getTrackPoints();
+                switch (response.body().getStatus()) {
+                    case ok:
+                        Log.d("TAG", "success login");
+                        BroadcastUtils.sendBroadcast(BroadcastUtils.ACTION.SUCCESS_LOGIN);
+                        App.getInstance().getState().setToken(response.body().getToken());
+                        break;
+                    case error:
+                        Log.e("TAG", "response = " + response.body().toString());
+                }
             }
 
             @Override
@@ -95,17 +104,34 @@ public class NetworkUtils {
         serverServiceInstance.getTracks().enqueue(new Callback<TrackResponse>() {
             @Override
             public void onResponse(Call<TrackResponse> call, Response<TrackResponse> response) {
+                switch (response.body().getStatus()) {
+
+                    case ok:
+                        Log.e("TAG", "ok");
+                        break;
+                    case error:
+
+
+
+                        BroadcastUtils.sendBroadcast(
+                                BroadcastUtils.ACTION.ERROR,
+                                response.body().getCode()
+                                );
+                        Log.e("TAG", "fail");
+                        break;
+                }
                 List<Track> tracks = response.body().getTracks();
                 if (tracks != null) {
-                    Log.e("TAG", "response = " + response.body().getTracks().toString());
+                    Log.d("TAG", "response = " + response.body().getTracks().toString());
                 } else {
-                    Log.e("TAG", "no current tracks");
+                    Log.d("TAG", "no current tracks");
                 }
             }
 
             @Override
             public void onFailure(Call<TrackResponse> call, Throwable t) {
-                Log.e("TAG", "fail = " + t.getMessage());
+                Log.d("TAG", "fail = " + t.getMessage());
+
             }
         });
     }

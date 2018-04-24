@@ -2,6 +2,8 @@ package com.paranoid.runordie.models.httpResponses;
 
 public abstract class AbstractResponse {
 
+    public static final String INVALID_TOKEN = "INVALID_TOKEN";
+
     public enum STATUS {
         ok, error;
     }
@@ -16,6 +18,14 @@ public abstract class AbstractResponse {
     }
     public void setStatus(STATUS status) {
         this.status = status;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @Override

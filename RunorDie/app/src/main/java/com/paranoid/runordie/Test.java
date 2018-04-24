@@ -54,8 +54,6 @@ public class Test {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build();
 
-
         notificationManager.notify(111, notification);
-
     }
 }

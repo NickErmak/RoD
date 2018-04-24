@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.network.NetworkUtils;
+import com.paranoid.runordie.utils.PreferenceUtils;
 
 public class AuthActivity extends BaseActivity {
 
@@ -18,6 +21,7 @@ public class AuthActivity extends BaseActivity {
     private View mProgressView;
 
     private enum MODE {SIGN_IN, SIGN_UP}
+    private MODE currentMode = MODE.SIGN_UP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +40,11 @@ public class AuthActivity extends BaseActivity {
         mBtnSignUp.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                switchMode(MODE.SIGN_UP);
+                if (currentMode == MODE.SIGN_UP) {
+                    attemptSignUp();
+                } else {
+                    switchMode(MODE.SIGN_UP);
+                }
             }
         });
 
@@ -44,8 +52,11 @@ public class AuthActivity extends BaseActivity {
         mBtnSignIn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchMode(MODE.SIGN_IN);
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                if (currentMode == MODE.SIGN_IN) {
+                    attemptSignIn();
+                } else {
+                    switchMode(MODE.SIGN_IN);
+                }
             }
         });
 
@@ -56,6 +67,7 @@ public class AuthActivity extends BaseActivity {
     private void switchMode(MODE mode) {
         switch (mode) {
             case SIGN_IN:
+                currentMode = MODE.SIGN_IN;
                 mBtnSignUp.setPaintFlags(mBtnSignUp.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                 mBtnSignIn.setPaintFlags(mBtnSignIn.getPaintFlags() & ~(Paint.UNDERLINE_TEXT_FLAG));
                 mEtFirstName.setVisibility(View.GONE);
@@ -63,6 +75,7 @@ public class AuthActivity extends BaseActivity {
                 mEtPasswordRepeat.setVisibility(View.GONE);
                 break;
             case SIGN_UP:
+                currentMode = MODE.SIGN_UP;
                 mBtnSignIn.setPaintFlags(mBtnSignIn.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                 mBtnSignUp.setPaintFlags(mBtnSignUp.getPaintFlags() & ~(Paint.UNDERLINE_TEXT_FLAG));
                 mEtFirstName.setVisibility(View.VISIBLE);
@@ -72,19 +85,18 @@ public class AuthActivity extends BaseActivity {
         }
     }
 
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-    private void attemptLogin() {
-        //TODO: check if login background is not already running
+    private void attemptSignUp() {
+        //TODO: check fields for errors
 
-        // Reset errors.
+
+    }
+
+
+    private void attemptSignIn() {
+        //TODO: check if login background is not already running
         mEtEmail.setError(null);
         mEtPassword.setError(null);
 
-        // Store values at the time of the login attempt.
         String email = mEtEmail.getText().toString();
         String password = mEtPassword.getText().toString();
 
@@ -110,13 +122,14 @@ public class AuthActivity extends BaseActivity {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+            PreferenceUtils.setLogin(email);
+            PreferenceUtils.setPassword(password);
+            NetworkUtils.login(email, password);
         }
     }
 

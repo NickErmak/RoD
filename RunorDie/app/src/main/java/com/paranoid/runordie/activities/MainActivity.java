@@ -46,8 +46,6 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        //Test.fillDB();
-        Test.createNotification(this);
         showFragment(HomeFragment.newInstance(), HomeFragment.FRAGMENT_TAG, true);
 
         //TODO: REFRESH DATA FROM SERVER

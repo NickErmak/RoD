@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.paranoid.runordie.helpers.DbOpenHelper;
 import com.paranoid.runordie.models.State;
+import com.paranoid.runordie.utils.SessionUtils;
 
 public class App extends Application {
 
@@ -34,5 +35,6 @@ public class App extends Application {
 
         db = new DbOpenHelper(this).getWritableDatabase();
         db.execSQL(VACUUM_COMMAND);
+        SessionUtils.initializeSession();
     }
 }

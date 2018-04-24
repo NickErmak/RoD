@@ -22,9 +22,11 @@ import android.view.ViewGroup;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.activities.MainActivity;
+import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.adapters.RVAdapter;
 import com.paranoid.runordie.adapters.RecyclerViewCursorAdapter;
 import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.network.NetworkUtils;
 import com.paranoid.runordie.utils.BroadcastUtils.ACTION;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
 
@@ -89,6 +91,14 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        view.findViewById(R.id.frag_home_fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), RunActivity.class));
+            }
+        });
+
+
         mSwipeRefreshLayout = view.findViewById(R.id.home_swipe_refresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -109,6 +119,9 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         recyclerView.setAdapter(mAdapter);
         getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 
+
+
+        NetworkUtils.getTracks();
        // refreshPosts();
     }
 

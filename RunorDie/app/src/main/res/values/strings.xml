@@ -26,6 +26,9 @@
     <string name="splash_title">Run or Die</string>
     <string name="frag_home_title">Tracks</string>
 
+    <!-- Strings related to Run Screen -->
+    <string name="run_title">Run or Die</string>
+
     <!-- Strings related to SQL requests -->
     <string name="sql_select_tracks">
         SELECT t._id, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime

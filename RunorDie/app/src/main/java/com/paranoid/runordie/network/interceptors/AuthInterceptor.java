@@ -1,7 +1,5 @@
 package com.paranoid.runordie.network.interceptors;
 
-import android.util.Log;
-
 import com.paranoid.runordie.App;
 
 import org.json.JSONException;
