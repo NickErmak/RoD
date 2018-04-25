@@ -17,9 +17,16 @@ public class DbCrudHelper {
         db.execSQL(sql);
     }
 
-    public static Cursor getTracks() {
+    public static Cursor loadTracks() {
         return getInstance().getDb().rawQuery(
                 getInstance().getString(R.string.sql_select_tracks),
+                null
+        );
+    }
+
+    public static Cursor loadNotifications() {
+        return getInstance().getDb().rawQuery(
+                getInstance().getString(R.string.sql_select_notifications),
                 null
         );
     }

@@ -14,6 +14,7 @@ public abstract class AbstractFragment extends Fragment {
 
     public interface FragmentLifeCircle {
         void onFragmentStart(String title);
+        void startProgress();
     }
 
     @Override

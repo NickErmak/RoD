@@ -1,5 +1,6 @@
 package com.paranoid.runordie.activities;
 
+import android.app.ProgressDialog;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -26,10 +27,12 @@ import com.paranoid.runordie.R;
 import com.paranoid.runordie.Test;
 import com.paranoid.runordie.fragments.AbstractFragment;
 import com.paranoid.runordie.fragments.HomeFragment;
+import com.paranoid.runordie.fragments.NotificationFragment;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, AbstractFragment.FragmentLifeCircle{
 
+    private ProgressDialog mProgressDialog;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -90,7 +93,16 @@ public class MainActivity extends BaseActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        item.setChecked(true);
+        Log.e("TAG", "id = " + item.getItemId());
+        switch (item.getItemId()) {
+            case R.id.nav_notifications:
+                showFragment(
+                        NotificationFragment.newInstance(),
+                        NotificationFragment.FRAGMENT_TAG,
+                        false
+                );
+                break;
+        }
         //TODO: remain closing animation?
         mDrawerLayout.closeDrawer(Gravity.START, true);
         return false;
@@ -123,8 +135,44 @@ public class MainActivity extends BaseActivity
         super.onBackPressed();
     }
 
+    private void dismissProgress() {
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
+        }
+    }
+
+    private void showProgress() {
+        if (App.getInstance().getState().isRunning() && mProgressDialog == null) {
+            mProgressDialog = ProgressDialog.show(
+                    this,
+                    "title",
+                    "message",
+                    true,
+                    false
+            );
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        dismissProgress();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showProgress();
+    }
+
     @Override
     public void onFragmentStart(String title) {
         setActionBarTitle(title);
+    }
+
+    @Override
+    public void startProgress() {
+        showProgress();
     }
 }

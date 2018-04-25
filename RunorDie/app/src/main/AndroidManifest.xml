@@ -25,6 +25,7 @@
         <activity android:name=".activities.MainActivity" />
         <service android:name=".services.LocationService"
             android:exported="false"/>
+        <receiver android:name=".receivers.AlarmReceiver"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

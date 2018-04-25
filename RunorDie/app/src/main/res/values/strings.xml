@@ -33,7 +33,9 @@
     <string name="sql_select_tracks">
         SELECT t._id, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime
     </string>
-
+    <string name="sql_select_notifications">
+        SELECT n._id, n.executionTime, n.title FROM notification n ORDER BY n.executionTime
+    </string>
 
     <string name="frag_track_title">Track details</string>
 

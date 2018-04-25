@@ -36,7 +36,6 @@ import com.paranoid.runordie.utils.BroadcastUtils;
 
 public class BaseActivity extends AppCompatActivity implements IActionBarHandler {
 
-    private ProgressDialog mProgressDialog;
     private Toolbar mToolbar;
     private BroadcastReceiver receiver = new BroadcastReceiver() {
 
@@ -79,7 +78,6 @@ public class BaseActivity extends AppCompatActivity implements IActionBarHandler
         return mToolbar;
     }
 
-
     @Override
     public void setActionBarTitle(int titleId) {
         setActionBarTitle(getString(titleId));
@@ -98,7 +96,6 @@ public class BaseActivity extends AppCompatActivity implements IActionBarHandler
     protected void onPause() {
         super.onPause();
         Log.e("TAG", "onPause Activity ");
-        dismissProgress();
         LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
     }
 
@@ -106,31 +103,9 @@ public class BaseActivity extends AppCompatActivity implements IActionBarHandler
     protected void onResume() {
         super.onResume();
         Log.e("TAG", "onResume Activity" + ". Thread = " + Thread.currentThread().getName());
-        if (App.getInstance().getState().isRunning()) {
-            showProgress();
-        }
         LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
                 receiver,
                 new IntentFilter(BroadcastUtils.BROADCAST_ACTION)
         );
-    }
-
-    private void dismissProgress() {
-        if (mProgressDialog != null) {
-            mProgressDialog.dismiss();
-            mProgressDialog = null;
-        }
-    }
-
-    private void showProgress() {
-        if (mProgressDialog == null) {
-            mProgressDialog = ProgressDialog.show(
-                    this,
-                    "title",
-                    "message",
-                    true,
-                    false
-            );
-        }
     }
 }

@@ -42,9 +42,7 @@ public class TimerUtil {
             millis = (millis % 1000) / 10;
 
             seconds = seconds % 60;
-            String time = String.format("%d:%02d,%3d", minutes, seconds, millis);
-            Log.e("TAG", time);
-            timerTextView.setText(time);
+            timerTextView.setText(String.format("%d:%02d,%3d", minutes, seconds, millis));
             timerHandler.postDelayed(this, 10);
         }
     };

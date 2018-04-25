@@ -1,13 +1,18 @@
 package com.paranoid.runordie.activities;
 
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.Test;
+import com.paranoid.runordie.services.LocationService;
 import com.paranoid.runordie.utils.TimerUtil;
 
 public class RunActivity extends BaseActivity {
@@ -46,14 +51,18 @@ public class RunActivity extends BaseActivity {
         mTvTimer.setVisibility(View.VISIBLE);
         mBtnFinish.setVisibility(View.VISIBLE);
         startTimer();
+        startService();
+        Test.createAlarmNotification();
+
     }
 
     private void startTimer() {
         TimerUtil.startTimer(mTvTimer, timerHandler);
     }
 
+    private void startService() {
 
-
-
-
+        LocationService service = new LocationService();
+        startService(new Intent(this, LocationService.class));
+    }
 }

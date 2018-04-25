@@ -14,16 +14,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
-import com.paranoid.runordie.activities.MainActivity;
 import com.paranoid.runordie.activities.RunActivity;
-import com.paranoid.runordie.adapters.RVAdapter;
+import com.paranoid.runordie.adapters.TrackAdapter;
 import com.paranoid.runordie.adapters.RecyclerViewCursorAdapter;
 import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.network.NetworkUtils;
@@ -41,14 +39,14 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
     private static final int LOADER_ID = 0;
 
-    public static class PostCursorLoader extends SimpleCursorLoader {
-        public PostCursorLoader(Context context) {
+    public static class TrackCursorLoader extends SimpleCursorLoader {
+        public TrackCursorLoader(Context context) {
             super(context);
         }
 
         @Override
         public Cursor loadInBackground() {
-            return DbCrudHelper.getTracks();
+            return DbCrudHelper.loadTracks();
         }
     }
 
@@ -69,7 +67,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         }
     };
 
-    private RecyclerViewCursorAdapter<RVAdapter.TrackViewHolder> mAdapter;
+    private RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
 
@@ -98,8 +96,8 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
             }
         });
 
-
         mSwipeRefreshLayout = view.findViewById(R.id.home_swipe_refresh);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.app_accent, R.color.app_primary_dark, R.color.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -107,7 +105,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
             }
         });
 
-        mAdapter = new RVAdapter(null, new RVAdapter.IOnItemClickEvent() {
+        mAdapter = new TrackAdapter(null, new TrackAdapter.IOnItemClickEvent() {
             @Override
             public void onItemClick(int trackId) {
                 //TODO: fix
@@ -118,7 +116,6 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setAdapter(mAdapter);
         getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
-
 
 
         NetworkUtils.getTracks();
@@ -153,7 +150,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        return new PostCursorLoader(getActivity());
+        return new TrackCursorLoader(getActivity());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.paranoid.runordie.adapters;
 
-import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,21 +13,21 @@ import com.paranoid.runordie.models.Track;
 
 import static com.paranoid.runordie.utils.DateConverter.parseDateToString;
 
-public class RVAdapter extends RecyclerViewCursorAdapter<RVAdapter.TrackViewHolder> {
+public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> {
 
     public interface IOnItemClickEvent {
         void onItemClick(int trackId);
     }
 
-    private static final String TAG = RVAdapter.class.getSimpleName();
     private final IOnItemClickEvent onItemClickEvent;
 
-    public RVAdapter(Cursor cursor, IOnItemClickEvent onItemClickEvent) {
+    public TrackAdapter(Cursor cursor, IOnItemClickEvent onItemClickEvent) {
         super(null);
         this.onItemClickEvent = onItemClickEvent;
         swapCursor(cursor);
     }
 
+    @NonNull
     @Override
     public TrackViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -37,7 +37,7 @@ public class RVAdapter extends RecyclerViewCursorAdapter<RVAdapter.TrackViewHold
 
     @Override
     protected void onBindViewHolder(TrackViewHolder holder, Cursor cursor) {
-        int idColumnIndex = cursor.getColumnIndex("_id");
+        int idColumnIndex = cursor.getColumnIndex(Track._ID);
         int startTimeColumnIndex = cursor.getColumnIndex(Track.START_TIME);
         int runTimeColumnIndex = cursor.getColumnIndex(Track.RUN_TIME);
         int distanceColumnIndex = cursor.getColumnIndex(Track.DISTANCE);
