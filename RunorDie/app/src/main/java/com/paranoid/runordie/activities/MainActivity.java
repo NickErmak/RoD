@@ -2,35 +2,27 @@ package com.paranoid.runordie.activities;
 
 import android.app.ProgressDialog;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
-import com.paranoid.runordie.Test;
 import com.paranoid.runordie.fragments.AbstractFragment;
 import com.paranoid.runordie.fragments.HomeFragment;
 import com.paranoid.runordie.fragments.NotificationFragment;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AbstractFragment.FragmentLifeCircle{
+        implements NavigationView.OnNavigationItemSelectedListener, AbstractFragment.FragmentLifeCircle {
 
     private ProgressDialog mProgressDialog;
     private DrawerLayout mDrawerLayout;
@@ -49,17 +41,17 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        showFragment(HomeFragment.newInstance(), HomeFragment.FRAGMENT_TAG, true);
+        showFragment(HomeFragment.newInstance(),true);
 
         //TODO: REFRESH DATA FROM SERVER
     }
 
     public void showFragment(
-            Fragment frag,
-            String tag,
+            AbstractFragment frag,
             boolean clearBackStack) {
         //TODO: mb make without tag?
 
+        String tag = frag.getFragTag();
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (clearBackStack) {
             fragmentManager.popBackStack(
@@ -94,14 +86,34 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Log.e("TAG", "id = " + item.getItemId());
+
+        AbstractFragment frag = null;
+        boolean clearBackStack = false;
+        FragmentManager fragManager = getSupportFragmentManager();
+
+
         switch (item.getItemId()) {
             case R.id.nav_notifications:
-                showFragment(
-                        NotificationFragment.newInstance(),
-                        NotificationFragment.FRAGMENT_TAG,
-                        false
-                );
+                clearBackStack = false;
+                frag = (AbstractFragment) fragManager.findFragmentByTag(NotificationFragment.FRAGMENT_TAG);
+                if (frag == null) {
+                    frag = NotificationFragment.newInstance();
+                }
                 break;
+            case R.id.nav_main:
+                clearBackStack = true;
+                frag = (AbstractFragment) fragManager.findFragmentByTag(HomeFragment.FRAGMENT_TAG);
+                if (frag == null) {
+                    frag = HomeFragment.newInstance();
+                }
+                break;
+        }
+
+        if (frag != null) {
+            showFragment(
+                    frag,
+                    clearBackStack
+            );
         }
         //TODO: remain closing animation?
         mDrawerLayout.closeDrawer(Gravity.START, true);

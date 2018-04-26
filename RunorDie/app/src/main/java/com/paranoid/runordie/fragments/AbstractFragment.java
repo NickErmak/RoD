@@ -7,14 +7,20 @@ public abstract class AbstractFragment extends Fragment {
 
     private FragmentLifeCircle mFragmentLifeCircle;
     private String title;
+    private String tag;
 
-    AbstractFragment(String title) {
+    AbstractFragment(String title, String tag) {
         this.title = title;
+        this.tag = tag;
     }
 
     public interface FragmentLifeCircle {
         void onFragmentStart(String title);
         void startProgress();
+    }
+
+    public String getFragTag() {
+        return tag;
     }
 
     @Override

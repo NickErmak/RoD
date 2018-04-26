@@ -16,7 +16,7 @@ import static com.paranoid.runordie.utils.DateConverter.parseDateToString;
 public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> {
 
     public interface IOnItemClickEvent {
-        void onItemClick(int trackId);
+        void onItemClick(long trackId);
     }
 
     private final IOnItemClickEvent onItemClickEvent;
@@ -54,7 +54,7 @@ public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackVi
     }
 
     public static class TrackViewHolder extends RecyclerView.ViewHolder {
-        int id;
+        long id;
         TextView mTvTrackStartTime;
         TextView mTvTrackRunTime;
         TextView mTvTrackDistance;

@@ -9,19 +9,15 @@ import com.paranoid.runordie.adapters.DateTypeAdapter;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.models.User;
 import com.paranoid.runordie.models.httpResponses.LoginResponse;
-import com.paranoid.runordie.models.PointD;
 import com.paranoid.runordie.models.httpResponses.PointsResponse;
 import com.paranoid.runordie.models.httpResponses.RegisterResponse;
 import com.paranoid.runordie.models.httpResponses.SaveTrackResponse;
 import com.paranoid.runordie.models.httpResponses.TrackResponse;
 import com.paranoid.runordie.network.interceptors.AuthInterceptor;
-
 import com.paranoid.runordie.network.services.ServerService;
 import com.paranoid.runordie.utils.BroadcastUtils;
-import com.paranoid.runordie.utils.PreferenceUtils;
 
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -62,7 +58,7 @@ public class NetworkUtils {
     }
 
     public static void login(final String email, final String password) {
-       // User user = new User("atory29@yandex.ru", "k11112222K");
+        // User user = new User("atory29@yandex.ru", "k11112222K");
         User user = new User(email, password);
         serverServiceInstance.login(user).enqueue(new Callback<LoginResponse>() {
             @Override
@@ -112,11 +108,10 @@ public class NetworkUtils {
                     case error:
 
 
-
                         BroadcastUtils.sendBroadcast(
                                 BroadcastUtils.ACTION.ERROR,
                                 response.body().getCode()
-                                );
+                        );
                         Log.e("TAG", "fail");
                         break;
                 }
@@ -136,8 +131,9 @@ public class NetworkUtils {
         });
     }
 
-    public static void getTrackPoints() {
-        serverServiceInstance.getTrackPoints(new Track(358L)).enqueue(new Callback<PointsResponse>() {
+    //TODO: fix parameter track
+    public static void getTrackPoints(Track track) {
+        serverServiceInstance.getTrackPoints(track).enqueue(new Callback<PointsResponse>() {
             @Override
             public void onResponse(Call<PointsResponse> call, Response<PointsResponse> response) {
                 Log.e("TAG", "response = " + response.body().getPoints());
@@ -152,9 +148,6 @@ public class NetworkUtils {
     }
 
     public static void saveTrack(Track track) {
-        List<PointD> points = new LinkedList<>();
-        points.add(new PointD(1, 1));
-        points.add(new PointD(3, 1));
 
         serverServiceInstance.saveTrack(track).enqueue(new Callback<SaveTrackResponse>() {
             @Override

@@ -14,12 +14,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.activities.MainActivity;
 import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.adapters.TrackAdapter;
 import com.paranoid.runordie.adapters.RecyclerViewCursorAdapter;
@@ -72,7 +74,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
 
     public HomeFragment() {
-        super(FRAGMENT_TITLE);
+        super(FRAGMENT_TITLE, FRAGMENT_TAG);
     }
 
     public static HomeFragment newInstance() {
@@ -101,32 +103,33 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //refreshPosts();
+                refreshPosts();
             }
         });
 
         mAdapter = new TrackAdapter(null, new TrackAdapter.IOnItemClickEvent() {
             @Override
-            public void onItemClick(int trackId) {
+            public void onItemClick(long trackId) {
                 //TODO: fix
-                //((MainActivity) getActivity()).showFragment(TrackFragment.newInstance(), TrackFragment.FRAGMENT_TAG, false);
+                ((MainActivity) getActivity()).showFragment(TrackFragment.newInstance(trackId), false);
             }
         });
         RecyclerView recyclerView = view.findViewById(R.id.frag_home_rv_tracks);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setAdapter(mAdapter);
+
+        mSwipeRefreshLayout.setRefreshing(true);
         getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 
-
+        //TODO: add refresh from server
         NetworkUtils.getTracks();
        // refreshPosts();
     }
 
-   /* private void refreshPosts() {
+    private void refreshPosts() {
         mSwipeRefreshLayout.setRefreshing(true);
-        int countPref = PreferenceHelper.getPostCount();
-        ApiTwitterProvider.refreshHomeTimeLine(countPref);
-    }*/
+        getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+    }
 
 
     @Override
@@ -156,12 +159,12 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
+        Log.e("TAG", "swap cursor");
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
-
-
 }

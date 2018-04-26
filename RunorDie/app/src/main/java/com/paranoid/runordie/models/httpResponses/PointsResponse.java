@@ -1,17 +1,18 @@
 package com.paranoid.runordie.models.httpResponses;
 
-import com.paranoid.runordie.models.PointD;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
 public class PointsResponse extends AbstractResponse {
 
-    private List<PointD> points;
+    private List<LatLng> points;
 
-    public List<PointD> getPoints() {
+    public List<LatLng> getPoints() {
         return points;
     }
-    public void setPoints(List<PointD> points) {
+
+    public void setPoints(List<LatLng> points) {
         this.points = points;
     }
 }

@@ -11,6 +11,7 @@ public class Track {
     public static final String START_TIME = "startTime";
     public static final String RUN_TIME = "runTime";
     public static final String DISTANCE = "distance";
+    public static final String POINTS = "points";
 
     private Long id;
     private long startTime;
@@ -18,8 +19,8 @@ public class Track {
     private int distance;
     private List<LatLng> points;
 
-    public Track(Long id) {
-        this.id = id;
+    public Track(long startTime, long runTime, int distance, List<LatLng> points) {
+        this(null, startTime, runTime, distance, points);
     }
 
     public Track(Long id, long startTime, long runTime, int distance, List<LatLng> points) {

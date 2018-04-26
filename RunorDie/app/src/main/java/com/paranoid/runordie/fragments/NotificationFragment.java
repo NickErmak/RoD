@@ -48,7 +48,7 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
     private RecyclerViewCursorAdapter<NotificationAdapter.NotificationViewHolder> mAdapter;
 
     public NotificationFragment() {
-        super(FRAGMENT_TITLE);
+        super(FRAGMENT_TITLE, FRAGMENT_TAG);
     }
 
     public static NotificationFragment newInstance() {

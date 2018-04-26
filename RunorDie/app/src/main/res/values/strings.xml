@@ -29,6 +29,10 @@
     <!-- Strings related to Run Screen -->
     <string name="run_title">Run or Die</string>
 
+    <!-- Strings related to Track Fragment -->
+    <string name="frag_track_title">Track details</string>
+    <string name="format_runTime">%1$d:%2$d:%3$d</string>
+
     <!-- Strings related to SQL requests -->
     <string name="sql_select_tracks">
         SELECT t._id, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime
@@ -36,7 +40,16 @@
     <string name="sql_select_notifications">
         SELECT n._id, n.executionTime, n.title FROM notification n ORDER BY n.executionTime
     </string>
+    <string name="sql_select_track">
+        SELECT t.runTime, t.distance, t.points FROM track t WHERE t._id = ?
+    </string>
+    <string name="sql_insert_track">
+        INSERT INTO track (startTime, distance, runTime, points) VALUES (?, ?, ?, ?)
+    </string>
 
-    <string name="frag_track_title">Track details</string>
 
+
+
+    <string name="yes">yes</string>
+    <string name="toast_permission_write_external_not_granted">Access denied</string>
 </resources>
