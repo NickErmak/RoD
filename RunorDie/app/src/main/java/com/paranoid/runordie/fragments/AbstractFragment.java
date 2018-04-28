@@ -3,37 +3,37 @@ package com.paranoid.runordie.fragments;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 
+import com.paranoid.runordie.api.activities.IActionBarHandler;
+import com.paranoid.runordie.api.activities.IProgressHandler;
+
 public abstract class AbstractFragment extends Fragment {
 
-    private FragmentLifeCircle mFragmentLifeCircle;
-    private String title;
-    private String tag;
+    public interface IActivityManager extends IActionBarHandler, IProgressHandler {}
+
+    private IActivityManager mActivityManager;
+    private String mTitle;
+    private String mTag;
 
     AbstractFragment(String title, String tag) {
-        this.title = title;
-        this.tag = tag;
-    }
-
-    public interface FragmentLifeCircle {
-        void onFragmentStart(String title);
-        void startProgress();
+        mTitle = title;
+        mTag = tag;
     }
 
     public String getFragTag() {
-        return tag;
+        return mTag;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mFragmentLifeCircle = (FragmentLifeCircle) context;
+        mActivityManager = (IActivityManager) context;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (mFragmentLifeCircle != null) {
-            mFragmentLifeCircle.onFragmentStart(title);
+        if (mActivityManager != null) {
+            mActivityManager.setActionBarTitle(mTitle);
         }
     }
 }

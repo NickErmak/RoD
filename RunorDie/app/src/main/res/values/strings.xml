@@ -26,12 +26,18 @@
     <string name="splash_title">Run or Die</string>
     <string name="frag_home_title">Tracks</string>
 
+    <!-- Strings related to Home Screen -->
+    <string name="frag_home_fab_tooltip">Start new Track</string>
+
     <!-- Strings related to Run Screen -->
     <string name="run_title">Run or Die</string>
 
     <!-- Strings related to Track Fragment -->
     <string name="frag_track_title">Track details</string>
     <string name="format_runTime">%1$d:%2$d:%3$d</string>
+
+    <!-- Strings related to Notification Fragment -->
+    <string name="frag_notification_title">Notifications</string>
 
     <!-- Strings related to SQL requests -->
     <string name="sql_select_tracks">
@@ -46,10 +52,18 @@
     <string name="sql_insert_track">
         INSERT INTO track (startTime, distance, runTime, points) VALUES (?, ?, ?, ?)
     </string>
+    <string name="sql_insert_notification">
+       INSERT INTO notification (executionTime, title) VALUES (?, ?)
+    </string>
+
+
+    <string name="sql_update_notification">UPDATE notification SET executionTime = ?, title = ? WHERE _id = ?</string>
 
 
 
 
     <string name="yes">yes</string>
     <string name="toast_permission_write_external_not_granted">Access denied</string>
+    <string name="frag_notifications_fab_tooltip">Add new notification</string>
+
 </resources>

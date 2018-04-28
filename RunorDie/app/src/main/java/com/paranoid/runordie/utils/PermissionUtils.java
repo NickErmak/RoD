@@ -20,14 +20,14 @@ public class PermissionUtils {
     public static void requestPermission(Activity activity, String permission) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                permission)) {
             Log.e("TAG", "shouldShowRequestPermissionRationale = true");
             PermissionDialog.newInstance(permission).show(activity.getFragmentManager(), null);
 
         } else {
             ActivityCompat.requestPermissions(
                     activity,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    new String[]{permission},
                     MY_PERMISSIONS_REQUEST);
         }
     }

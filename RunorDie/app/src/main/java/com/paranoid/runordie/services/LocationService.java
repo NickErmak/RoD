@@ -35,7 +35,7 @@ import java.util.List;
 public class LocationService extends Service implements LocationListener {
 
     private static final int NOTIFICATION_ID = 1;
-    private static final long TIME_BETWEEN_UPDATES = 500;
+    private static final long TIME_BETWEEN_UPDATES = 5000;
     private static final float UPDATE_DISTANCE_THRESHOLD_METERS = 5.0f;
 
     private boolean isActive = true;

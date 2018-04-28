@@ -1,24 +1,44 @@
 package com.paranoid.runordie.utils;
 
+
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateConverter {
 
-    private static SimpleDateFormat formatter;
+    private static DateFormat dateFormatter;
+    private static DateFormat timeFormatter;
     private static String timeFormat;
 
     static {
-        String pattern = "MM/dd/yyyy HH:mm:ss";
-        formatter = new SimpleDateFormat(pattern);
+        String timePattern = "HH:mm:ss";
+        String datePattern = "MM/dd/yyyy";
+
+        dateFormatter = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM);
+        timeFormatter = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
+
         timeFormat = App.getInstance().getString(R.string.format_runTime);
     }
 
-    public static Date parseStringToDate(String dateString) {
+    public static String parseDateToString(long date) {
+        return dateFormatter.format(new Date(date));
+    }
+
+    public static String parseTimeToString(long time) {
+        return timeFormatter.format(new Date(time));
+    }
+
+
+
+
+
+   /* public static Date parseStringToDate(String dateString) {
+
         Date date = null;
         try {
             date = formatter.parse(dateString);
@@ -43,5 +63,5 @@ public class DateConverter {
         minutes -= (hours * 60);
 
         return String.format(timeFormat, hours, minutes, seconds);
-    }
+    }*/
 }

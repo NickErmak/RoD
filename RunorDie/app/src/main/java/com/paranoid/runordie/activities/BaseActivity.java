@@ -1,42 +1,27 @@
 package com.paranoid.runordie.activities;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
-import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.api.activities.IActionBarHandler;
-import com.paranoid.runordie.fragments.AbstractFragment;
+import com.paranoid.runordie.api.activities.IProgressHandler;
 import com.paranoid.runordie.models.httpResponses.AbstractResponse;
 import com.paranoid.runordie.utils.BroadcastUtils;
 
-public class BaseActivity extends AppCompatActivity implements IActionBarHandler {
+public class BaseActivity extends AppCompatActivity implements IActionBarHandler, IProgressHandler {
 
     private Toolbar mToolbar;
+    private View mProgressView;
     private BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
@@ -56,6 +41,10 @@ public class BaseActivity extends AppCompatActivity implements IActionBarHandler
 
                     Log.e("TAG", "error_code: " + errorCode);
                     break;
+                    //TODO: test. rebuild for bolts
+                case SUCCESS_LOGIN:
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    break;
             }
         }
     };
@@ -70,6 +59,7 @@ public class BaseActivity extends AppCompatActivity implements IActionBarHandler
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
+        mProgressView = findViewById(R.id.progress_bar);
         setupToolbar();
     }
 
@@ -96,16 +86,29 @@ public class BaseActivity extends AppCompatActivity implements IActionBarHandler
     protected void onPause() {
         super.onPause();
         Log.e("TAG", "onPause Activity ");
+        showProgress(false);
         LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (App.getInstance().getState().isLoading()) {
+            showProgress(true);
+        }
         Log.e("TAG", "onResume Activity" + ". Thread = " + Thread.currentThread().getName());
         LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
                 receiver,
                 new IntentFilter(BroadcastUtils.BROADCAST_ACTION)
         );
+    }
+
+    @Override
+    public void showProgress(boolean isLoading) {
+        if (mProgressView != null) {
+            mProgressView.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        } else {
+            Log.e("TAG", "progress view is null");
+        }
     }
 }

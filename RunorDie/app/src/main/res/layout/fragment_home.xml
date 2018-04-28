@@ -27,6 +27,7 @@
             android:src="@drawable/ic_fab"
             app:layout_behavior="com.paranoid.runordie.behavior.ScrollFABBehavior"
             app:fabSize="normal"
+            android:tooltipText="@string/frag_home_fab_tooltip"
             android:clickable="true"/>
         <!--
         android:layout_margin="@dimen/fab_margin"

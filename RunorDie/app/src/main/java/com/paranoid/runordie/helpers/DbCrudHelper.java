@@ -12,6 +12,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.models.Notification;
 import com.paranoid.runordie.models.Track;
 
 import java.lang.reflect.Type;
@@ -39,6 +40,33 @@ public class DbCrudHelper {
                 getInstance().getString(R.string.sql_select_notifications),
                 null
         );
+    }
+
+    public static List<Notification> getNotifications() {
+        List<Notification> notifications = new ArrayList<>();
+
+        Cursor cursor = App.getInstance().getDb().rawQuery(
+                App.getInstance().getString(R.string.sql_select_notifications),
+                null
+        );
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int idIndex = cursor.getColumnIndexOrThrow("_id");
+                int execTimeIndex = cursor.getColumnIndexOrThrow("execTime");
+                int titleIndex = cursor.getColumnIndexOrThrow("title");
+
+                do {
+                    Notification notification = new Notification(
+                            cursor.getLong(idIndex),
+                            cursor.getLong(execTimeIndex),
+                            cursor.getString(titleIndex)
+                    );
+                    notifications.add(notification);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        return notifications;
     }
 
     //TODO: why I convert type from long to String and then paste in DB again int
@@ -76,5 +104,26 @@ public class DbCrudHelper {
             statement.close();
         }
         return idInsert;
+    }
+
+    public static long insertNotification(Notification notification) {
+        return insert(
+                App.getInstance().getString(R.string.sql_insert_notification),
+                new String[]{
+                        String.valueOf(notification.getExecutionTime()),
+                        notification.getTitle()
+                }
+        );
+    }
+
+    public static void updateNotification(Notification notification) {
+            App.getInstance().getDb().execSQL(
+                    App.getInstance().getString(R.string.sql_update_notification),
+                    new String[]{
+                            String.valueOf(notification.getExecutionTime()),
+                            notification.getTitle(),
+                            String.valueOf(notification.getId())
+                    }
+            );
     }
 }

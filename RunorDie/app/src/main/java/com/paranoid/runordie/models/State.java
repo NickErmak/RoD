@@ -3,14 +3,14 @@ package com.paranoid.runordie.models;
 public class State {
     private User user;
     private String token;
-    private boolean isRunning;
+    private boolean isLoading;
 
-    public boolean isRunning() {
-        return isRunning;
+    public boolean isLoading() {
+        return isLoading;
     }
 
-    public void setShowProgress(boolean isRunning) {
-        this.isRunning = isRunning;
+    public void setLoading(boolean isLoading) {
+        this.isLoading = isLoading;
     }
 
     public User getUser() {

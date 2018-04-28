@@ -48,32 +48,29 @@ public class RunActivity extends BaseActivity {
         mIbStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                run();
+                checkPermission();
             }
         });
     }
 
-    private void run() {
+    private void checkPermission() {
         if (PermissionUtils.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            mIbStart.setVisibility(View.GONE);
-            mTvTimer.setVisibility(View.VISIBLE);
-            mBtnFinish.setVisibility(View.VISIBLE);
-            startTimer();
-            startService();
-            Test.createAlarmNotification();
+            run();
+        } else {
+            PermissionUtils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         }
+    }
+
+    private void run() {
+        mIbStart.setVisibility(View.GONE);
+        mTvTimer.setVisibility(View.VISIBLE);
+        mBtnFinish.setVisibility(View.VISIBLE);
+        startTimer();
+        startService(new Intent(this, LocationService.class));
     }
 
     private void startTimer() {
         TimerUtil.startTimer(mTvTimer, timerHandler);
-    }
-
-    private void startService() {
-        if (PermissionUtils.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            startService(new Intent(this, LocationService.class));
-        } else {
-            PermissionUtils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        }
     }
 
     @Override
@@ -81,7 +78,7 @@ public class RunActivity extends BaseActivity {
         switch (requestCode) {
             case PermissionUtils.MY_PERMISSIONS_REQUEST:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startService(new Intent(this, LocationService.class));
+                    run();
                     Log.e("TAG", "getPermissionResult");
                 } else {
                     Toast.makeText(

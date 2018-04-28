@@ -1,6 +1,5 @@
 package com.paranoid.runordie.activities;
 
-import android.app.ProgressDialog;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,16 +14,18 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.Test;
 import com.paranoid.runordie.fragments.AbstractFragment;
 import com.paranoid.runordie.fragments.HomeFragment;
 import com.paranoid.runordie.fragments.NotificationFragment;
+import com.paranoid.runordie.fragments.TrackFragment;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AbstractFragment.FragmentLifeCircle {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        AbstractFragment.IActivityManager,
+        HomeFragment.IOnTrackClickEvent {
 
-    private ProgressDialog mProgressDialog;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -41,7 +42,7 @@ public class MainActivity extends BaseActivity
             }
         });
 
-        showFragment(HomeFragment.newInstance(),true);
+        showFragment(HomeFragment.newInstance(), true);
 
         //TODO: REFRESH DATA FROM SERVER
     }
@@ -137,7 +138,6 @@ public class MainActivity extends BaseActivity
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-
     @Override
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
@@ -147,44 +147,8 @@ public class MainActivity extends BaseActivity
         super.onBackPressed();
     }
 
-    private void dismissProgress() {
-        if (mProgressDialog != null) {
-            mProgressDialog.dismiss();
-            mProgressDialog = null;
-        }
-    }
-
-    private void showProgress() {
-        if (App.getInstance().getState().isRunning() && mProgressDialog == null) {
-            mProgressDialog = ProgressDialog.show(
-                    this,
-                    "title",
-                    "message",
-                    true,
-                    false
-            );
-        }
-    }
-
     @Override
-    protected void onPause() {
-        super.onPause();
-        dismissProgress();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        showProgress();
-    }
-
-    @Override
-    public void onFragmentStart(String title) {
-        setActionBarTitle(title);
-    }
-
-    @Override
-    public void startProgress() {
-        showProgress();
+    public void onTrackClick(long trackId) {
+        showFragment(TrackFragment.newInstance(trackId), false);
     }
 }

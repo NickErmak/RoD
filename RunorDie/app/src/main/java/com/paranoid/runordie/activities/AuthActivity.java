@@ -18,7 +18,6 @@ public class AuthActivity extends BaseActivity {
 
     private EditText mEtEmail, mEtFirstName, mEtLastName, mEtPassword, mEtPasswordRepeat;
     private Button mBtnSignUp, mBtnSignIn;
-    private View mProgressView;
 
     private enum MODE {SIGN_IN, SIGN_UP}
     private MODE currentMode = MODE.SIGN_UP;
@@ -60,7 +59,7 @@ public class AuthActivity extends BaseActivity {
             }
         });
 
-        mProgressView = findViewById(R.id.login_progress);
+
         switchMode(MODE.SIGN_UP);
     }
 
@@ -124,8 +123,6 @@ public class AuthActivity extends BaseActivity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             showProgress(true);
             PreferenceUtils.setLogin(email);
             PreferenceUtils.setPassword(password);
@@ -141,13 +138,6 @@ public class AuthActivity extends BaseActivity {
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
-    }
-
-    private void showProgress(final boolean show) {
-        // The ViewPropertyAnimator APIs are not available, so simply show
-        // and hide the relevant UI components.
-        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-        //mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 }
 

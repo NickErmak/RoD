@@ -9,13 +9,19 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.receivers.AlarmReceiver;
+import com.paranoid.runordie.utils.DateConverter;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 
 public class Test {
@@ -35,8 +41,8 @@ public class Test {
         );
     }
 
-    public static void createNotification(Activity activity) {
-        NotificationManager notificationManager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
+    public static void createNotification(String title) {
+        NotificationManager notificationManager = (NotificationManager) App.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
 
         String CHANNEL_ID = "3000";
 
@@ -53,10 +59,10 @@ public class Test {
             notificationManager.createNotificationChannel(mChannel);
         }
 
-        Notification notification = new NotificationCompat.Builder(activity, CHANNEL_ID)
+        Notification notification = new NotificationCompat.Builder(App.getInstance(), CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_exit_to_app_black_24dp)
-                .setContentTitle("Test TITLE")
-                .setContentText("Test TEXT")
+                .setContentTitle("Run od DIe")
+                .setContentText(title)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build();
@@ -64,21 +70,26 @@ public class Test {
         notificationManager.notify(111, notification);
     }
 
-    public static void createAlarmNotification() {
-        Context context = App.getInstance();
+    public static void createAlarmNotification(long execTime, String title) {
+         Context context = App.getInstance();
          AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
          PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0, // requestCode, полезно, если вызывается активити, или один ресивер обрабатывает несколько задач
-                new Intent(context, AlarmReceiver.class),
+                new Intent(context, AlarmReceiver.class)
+                     .putExtra("TITLE_KEY", title),
                 PendingIntent.FLAG_UPDATE_CURRENT // если такой PendingIntent уже есть, то заменить его
         );
+
+        Log.e("TAG", "execTime = " + DateConverter.parseDateToString(execTime) + "||"+ DateConverter.parseTimeToString(execTime));
+
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.SECOND, 5);
+        Log.e("TAG", "time ms = "+ (execTime - calendar.getTimeInMillis()));
+
         alarmManager.set(
                 AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
-                calendar.getTimeInMillis(), // время, когда надо вызвать PendingIntent
+                execTime, // время, когда надо вызвать PendingIntent
                 pendingIntent // PendingIntent, который надо вызвать
         );
     }

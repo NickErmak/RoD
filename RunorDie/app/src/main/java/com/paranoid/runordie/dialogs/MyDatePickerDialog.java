@@ -1,31 +1,28 @@
 package com.paranoid.runordie.dialogs;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.text.format.DateFormat;
-import android.util.Log;
-import android.widget.TimePicker;
+import android.widget.DatePicker;
 
 import com.paranoid.runordie.adapters.NotificationRecyclerAdapter.IConfigNotification;
-import com.paranoid.runordie.utils.DateConverter;
 
 import java.util.Calendar;
 
 
-public class MyTimePickerDialog extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+public class MyDatePickerDialog extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
     public static final String KEY_TIME = "KEY_TIME";
     public static final String KEY_POSITION = "KEY_POSITION";
     private long mExecTime;
     private int mPosition;
-    private int mHour, mMinute;
+    private int mYear, mMonth, mDay;
 
-    public static MyTimePickerDialog newInstance(int position, long time) {
-        MyTimePickerDialog result = new MyTimePickerDialog();
+    public static MyDatePickerDialog newInstance(int position, long time) {
+        MyDatePickerDialog result = new MyDatePickerDialog();
         Bundle args = new Bundle();
         args.putInt(KEY_POSITION, position);
         args.putLong(KEY_TIME, time);
@@ -33,7 +30,7 @@ public class MyTimePickerDialog extends DialogFragment implements TimePickerDial
         return result;
     }
 
-    public MyTimePickerDialog() {
+    public MyDatePickerDialog() {
     }
 
     @Override
@@ -49,19 +46,25 @@ public class MyTimePickerDialog extends DialogFragment implements TimePickerDial
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(mExecTime);
-        mHour = c.get(Calendar.HOUR_OF_DAY);
-        mMinute = c.get(Calendar.MINUTE);
-        return new TimePickerDialog(getActivity(), this, mHour, mMinute,
-                DateFormat.is24HourFormat(getActivity()));
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+        return new DatePickerDialog(getActivity(), this, mYear, mMonth, mDay);
     }
 
     @Override
-    public void onTimeSet(TimePicker view, int newHour, int newMinute) {
-        if ((newHour != mHour) || (newMinute != mMinute)) {
-            Log.e("TAG", "old time = " + DateConverter.parseDateToString(mExecTime));
-            long newTime = mExecTime + (60 * (newHour - mHour) + (newMinute - mMinute)) * 60 * 1000;
+    public void onDateSet(DatePicker view, int year, int month, int day) {
+        if ((day != mDay) || (month != mMonth) || (year != mYear)) {
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(mExecTime);
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            c.set(year, month, day, hour, minute);
+            long newExecTime = c.getTimeInMillis();
+
             IConfigNotification configExecTime = (IConfigNotification) getParentFragment();
-            configExecTime.onTimeChanged(mPosition, newTime);
+            configExecTime.onTimeChanged(mPosition, newExecTime);
         }
     }
 }

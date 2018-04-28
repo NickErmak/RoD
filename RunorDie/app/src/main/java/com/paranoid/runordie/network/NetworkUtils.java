@@ -66,8 +66,8 @@ public class NetworkUtils {
                 switch (response.body().getStatus()) {
                     case ok:
                         Log.d("TAG", "success login");
-                        BroadcastUtils.sendBroadcast(BroadcastUtils.ACTION.SUCCESS_LOGIN);
                         App.getInstance().getState().setToken(response.body().getToken());
+                        BroadcastUtils.sendBroadcast(BroadcastUtils.ACTION.SUCCESS_LOGIN);
                         break;
                     case error:
                         Log.e("TAG", "response = " + response.body().toString());

@@ -14,6 +14,10 @@
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
 
+        <include
+            android:id="@+id/progress_bar"
+            layout="@layout/progress_bar" />
+
         <FrameLayout
             android:id="@+id/main_frame_fragContainer"
             android:layout_width="match_parent"

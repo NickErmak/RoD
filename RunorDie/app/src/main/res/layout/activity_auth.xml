@@ -10,14 +10,9 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
-    <!-- Login progress -->
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+    <include
+        android:id="@+id/progress_bar"
+        layout="@layout/progress_bar" />
 
     <ScrollView
         android:id="@+id/login_form"

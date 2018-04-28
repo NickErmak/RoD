@@ -11,19 +11,16 @@ import android.widget.TextView;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.Track;
 
+import static com.paranoid.runordie.fragments.HomeFragment.IOnTrackClickEvent;
 import static com.paranoid.runordie.utils.DateConverter.parseDateToString;
 
 public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> {
 
-    public interface IOnItemClickEvent {
-        void onItemClick(long trackId);
-    }
+    private final IOnTrackClickEvent mOnTrackClickEvent;
 
-    private final IOnItemClickEvent onItemClickEvent;
-
-    public TrackAdapter(Cursor cursor, IOnItemClickEvent onItemClickEvent) {
+    public TrackAdapter(Cursor cursor, IOnTrackClickEvent onTrackClickEvent) {
         super(null);
-        this.onItemClickEvent = onItemClickEvent;
+        mOnTrackClickEvent = onTrackClickEvent;
         swapCursor(cursor);
     }
 
@@ -32,7 +29,7 @@ public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackVi
     public TrackViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_track, parent, false);
-        return new TrackViewHolder(view, onItemClickEvent);
+        return new TrackViewHolder(view, mOnTrackClickEvent);
     }
 
     @Override
@@ -42,7 +39,7 @@ public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackVi
         int runTimeColumnIndex = cursor.getColumnIndex(Track.RUN_TIME);
         int distanceColumnIndex = cursor.getColumnIndex(Track.DISTANCE);
 
-        int id = cursor.getInt(idColumnIndex);
+        long id = cursor.getLong(idColumnIndex);
         long startTime = cursor.getLong(startTimeColumnIndex);
         int runTime = cursor.getInt(runTimeColumnIndex);
         int distance = cursor.getInt(distanceColumnIndex);
@@ -59,12 +56,12 @@ public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackVi
         TextView mTvTrackRunTime;
         TextView mTvTrackDistance;
 
-        TrackViewHolder(View v, final IOnItemClickEvent onItemClickEvent) {
+        TrackViewHolder(View v, final IOnTrackClickEvent onTrackClickEvent) {
             super(v);
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemClickEvent.onItemClick(id);
+                    onTrackClickEvent.onTrackClick(id);
                 }
             });
             mTvTrackStartTime = (TextView) v.findViewById(R.id.list_track_startTime_value);

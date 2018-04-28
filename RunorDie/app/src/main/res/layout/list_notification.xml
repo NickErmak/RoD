@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <EditText
+        android:id="@+id/list_notification_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"/>
+
     <Button
         android:id="@+id/list_notification_time"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_notification_title"
+        android:layout_alignParentLeft="true"/>
 
-    <TextView
-        android:id="@+id/list_notification_title"
+    <Button
+        android:id="@+id/list_notification_date"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/list_notification_time"
+        android:layout_toRightOf="@+id/list_notification_time"/>
 
-</LinearLayout>
+</RelativeLayout>
