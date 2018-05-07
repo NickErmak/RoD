@@ -6,16 +6,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.Notification;
 import com.paranoid.runordie.models.Track;
+import com.paranoid.runordie.utils.PreferenceUtils;
+import com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,17 +28,56 @@ public class DbCrudHelper {
     }
 
     public static Cursor loadTracks() {
-        return getInstance().getDb().rawQuery(
-                getInstance().getString(R.string.sql_select_tracks),
+        return App.getInstance().getDb().rawQuery(
+                App.getInstance().getString(R.string.sql_select_tracks),
                 null
         );
     }
 
     public static Cursor loadNotifications() {
-        return getInstance().getDb().rawQuery(
-                getInstance().getString(R.string.sql_select_notifications),
+        return App.getInstance().getDb().rawQuery(
+                App.getInstance().getString(R.string.sql_select_notifications),
                 null
         );
+    }
+
+    //TODO: background
+    public static void refreshTracks(List<Track> dbTracks, List<Track> serverTracks) {
+        serverTracks.removeAll(dbTracks);
+        refreshTracks(serverTracks);
+    }
+
+    public static void refreshTracks(List<Track> serverTracks) {
+
+        for (Track track : serverTracks) {
+            Log.e("TAG", "track before inserting" + track.toString());
+            insertTrackWithServerId(track);
+        }
+
+        if (PreferenceUtils.isFirstLaunch()) {
+            PreferenceUtils.executeFirstLaunch();
+        }
+
+
+    }
+
+    public static List<Long> getTrackServerIdList() {
+        List<Long> serverIdList = new LinkedList<>();
+
+        Cursor cursor = App.getInstance().getDb().rawQuery(
+                App.getInstance().getString(R.string.sql_select_tracks_server_id),
+                null
+        );
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int serverIdIndex = cursor.getColumnIndexOrThrow(Track.ID);
+                do {
+                    serverIdList.add(cursor.getLong(serverIdIndex));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        return serverIdList;
     }
 
     public static List<Notification> getNotifications() {
@@ -77,7 +115,24 @@ public class DbCrudHelper {
         );
     }
 
-    public static Long insertTrack(Track track) {
+    public static Long insertTrackWithServerId(Track track) {
+        Gson gson = new GsonBuilder().create();
+
+        String[] args = {
+                String.valueOf(track.getStartTime()),
+                String.valueOf(track.getServerId()),
+                String.valueOf(track.getDistance()),
+                String.valueOf(track.getRunTime()),
+                gson.toJson(track.getPoints())
+        };
+
+        return insert(
+                App.getInstance().getString(R.string.sql_insert_track),
+                args
+        );
+    }
+
+    public static Long insertTrackNoServerId(Track track) {
         Gson gson = new GsonBuilder().create();
 
         String[] args = {
@@ -88,7 +143,7 @@ public class DbCrudHelper {
         };
 
         return insert(
-                App.getInstance().getString(R.string.sql_insert_track),
+                App.getInstance().getString(R.string.sql_insert_track_no_serverId),
                 args
         );
     }
@@ -117,13 +172,13 @@ public class DbCrudHelper {
     }
 
     public static void updateNotification(Notification notification) {
-            App.getInstance().getDb().execSQL(
-                    App.getInstance().getString(R.string.sql_update_notification),
-                    new String[]{
-                            String.valueOf(notification.getExecutionTime()),
-                            notification.getTitle(),
-                            String.valueOf(notification.getId())
-                    }
-            );
+        App.getInstance().getDb().execSQL(
+                App.getInstance().getString(R.string.sql_update_notification),
+                new String[]{
+                        String.valueOf(notification.getExecutionTime()),
+                        notification.getTitle(),
+                        String.valueOf(notification.getId())
+                }
+        );
     }
 }

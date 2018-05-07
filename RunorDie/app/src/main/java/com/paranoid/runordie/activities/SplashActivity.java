@@ -2,14 +2,23 @@ package com.paranoid.runordie.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.Log;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.helpers.PreferenceHelper;
+import com.paranoid.runordie.models.Session;
+import com.paranoid.runordie.models.User;
+import com.paranoid.runordie.models.httpResponses.LoginResponse;
+import com.paranoid.runordie.server.ApiClient;
+import com.paranoid.runordie.server.Callback;
+import com.paranoid.runordie.server.NetworkException;
 import com.paranoid.runordie.utils.AnimationUtils;
+import com.paranoid.runordie.utils.ConnectionUtils;
+import com.paranoid.runordie.utils.SnackbarUtils;
 
 public class SplashActivity extends BaseActivity {
 
@@ -28,19 +37,46 @@ public class SplashActivity extends BaseActivity {
 
         setActionBarTitle(R.string.splash_title);
         AnimationUtils.setLogoAnimation(
-                findViewById(R.id.splach_logo),
+                findViewById(R.id.splash_logo),
                 endListener
         );
     }
 
     private void route() {
-        Class<? extends BaseActivity> nextActivity;
-        Log.e("TAG", "token = " + App.getInstance().getState().getToken());
-        if (App.getInstance().getState().getToken() == null) {
-            nextActivity = AuthActivity.class;
+        User user = PreferenceHelper.loadUserData();
+        if (user == null) {
+            routeToAuth();
         } else {
-            nextActivity = MainActivity.class;
+            routeToMain(user);
         }
-        startActivity(new Intent(this, nextActivity));
+    }
+
+    private void routeToAuth() {
+        startActivity(new Intent(this, AuthActivity.class));
+    }
+
+    private void routeToMain(final User user) {
+        if (ConnectionUtils.checkInternetConnection()) {
+            ApiClient.getInstance().login(user, new Callback<LoginResponse>() {
+                @Override
+                public void success(LoginResponse result) {
+                    Log.d("TAG", "success login");
+                    Session activeSession = new Session(user, result.getToken());
+                    App.getInstance().getState().setActiveSession(activeSession);
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                }
+                @Override
+                public void failure(NetworkException exception) {
+                    routeToAuth();
+                }
+            });
+        } else {
+            SnackbarUtils.showSnackbar(R.string.internet_connection_error);
+        }
+    }
+
+    @Override
+    public CoordinatorLayout getRootLayout() {
+        return findViewById(R.id.splash_root_layout);
     }
 }

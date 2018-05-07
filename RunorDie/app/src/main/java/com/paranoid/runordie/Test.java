@@ -85,12 +85,31 @@ public class Test {
         Log.e("TAG", "execTime = " + DateConverter.parseDateToString(execTime) + "||"+ DateConverter.parseTimeToString(execTime));
 
         Calendar calendar = Calendar.getInstance();
+        Calendar calTest = Calendar.getInstance();
+        calTest.setTimeInMillis(execTime - calendar.getTimeInMillis());
+        Log.e("TAG", "execution time in " + calTest.get(Calendar.MINUTE) + "min, " + calTest.get(Calendar.SECOND) + "sec");
         Log.e("TAG", "time ms = "+ (execTime - calendar.getTimeInMillis()));
 
-        alarmManager.set(
-                AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
-                execTime, // время, когда надо вызвать PendingIntent
-                pendingIntent // PendingIntent, который надо вызвать
-        );
+        int currentApiVersion = Build.VERSION.SDK_INT;
+        if (currentApiVersion >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
+                    execTime, // время, когда надо вызвать PendingIntent
+                    pendingIntent // PendingIntent, который надо вызвать
+            );
+        } else if (currentApiVersion >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
+                    execTime, // время, когда надо вызвать PendingIntent
+                    pendingIntent // PendingIntent, который надо вызвать
+            );
+        } else {
+            alarmManager.set(
+                    AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
+                    execTime, // время, когда надо вызвать PendingIntent
+                    pendingIntent // PendingIntent, который надо вызвать
+            );
+        }
+
     }
 }

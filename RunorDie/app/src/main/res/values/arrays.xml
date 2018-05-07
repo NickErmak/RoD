@@ -3,7 +3,7 @@
     <string-array name="tables">
         <item>CREATE TABLE track (
             _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            serverId INTEGER,
+            serverId INTEGER UNIQUE,
             startTime INTEGER NOT NULL,
             runTime INTEGER NOT NULL,
             distance INTEGER NOT NULL,

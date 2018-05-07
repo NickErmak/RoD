@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,6 +22,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.activities.SplashActivity;
 import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.helpers.DetermineBestLocation;
@@ -34,6 +36,14 @@ import java.util.List;
 
 public class LocationService extends Service implements LocationListener {
 
+    private final IBinder mBinder = new LocationBinder();
+
+    public class LocationBinder extends Binder {
+        public LocationService getService() {
+            return LocationService.this;
+        }
+    }
+
     private static final int NOTIFICATION_ID = 1;
     private static final long TIME_BETWEEN_UPDATES = 5000;
     private static final float UPDATE_DISTANCE_THRESHOLD_METERS = 5.0f;
@@ -44,6 +54,19 @@ public class LocationService extends Service implements LocationListener {
     private Location bestLocation;
     private List<LatLng> points;
 
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
     @Override
     public void onCreate() {
 
@@ -51,16 +74,9 @@ public class LocationService extends Service implements LocationListener {
         isActive = false;
         points = new LinkedList<>();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         //first create
     }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-        //some component want to bind to this service
-    }
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -100,7 +116,7 @@ public class LocationService extends Service implements LocationListener {
                     .setContentIntent(PendingIntent.getActivity(
                             this,
                             0,
-                            new Intent(this, SplashActivity.class),
+                            new Intent(this, RunActivity.class),
                             0
                     ))
                     .setContentTitle("Test TITLE")
@@ -120,7 +136,15 @@ public class LocationService extends Service implements LocationListener {
     public void onDestroy() {
         if (isActive) {
             isActive = false;
+            saveTrack();
+            locationManager.removeUpdates(this);
+            stopForeground(true);
+        }
+        super.onDestroy();
+    }
 
+    private void saveTrack() {
+        if (points.size() >= 2) {
             Track track = new Track(
                     startTime,
                     System.currentTimeMillis() - startTime,
@@ -128,12 +152,12 @@ public class LocationService extends Service implements LocationListener {
                     points
             );
             Log.e("TAG", "insert new track in db");
-            DbCrudHelper.insertTrack(track);
-            locationManager.removeUpdates(this);
-            stopForeground(true);
+            DbCrudHelper.insertTrackNoServerId(track);
+        } else {
+            Log.e("TAG", "can't save track: too little points");
         }
-        super.onDestroy();
     }
+
 
     //TODO: main thread for JPS?!
     @Override

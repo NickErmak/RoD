@@ -1,30 +1,25 @@
 package com.paranoid.runordie.utils;
 
-import android.content.Context;
-import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-
-import com.paranoid.runordie.App;
-import com.paranoid.runordie.R;
 
 public class TimerUtil {
 
+    //TODO: make this class non static?
+    public static long START_TIME_FIRST_LAUNCH = 0;
     private static TextView timerTextView;
-    private static long startTime = 0;
+    private static long startTime;
 
     private static Handler timerHandler;
 
-    public static void startTimer(TextView timerTextView, Handler timerHandler) {
+    public static long startTimer(TextView timerTextView, Handler timerHandler, long startTime) {
         TimerUtil.timerHandler = timerHandler;
-        TimerUtil.startTime = System.currentTimeMillis();
+        TimerUtil.startTime = (startTime == START_TIME_FIRST_LAUNCH)
+                ? System.currentTimeMillis()
+                : startTime;
         TimerUtil.timerTextView = timerTextView;
         timerHandler.postDelayed(timerRunnable, 0);
-
+        return TimerUtil.startTime;
     }
 
     public static void stopTimer() {
@@ -46,7 +41,4 @@ public class TimerUtil {
             timerHandler.postDelayed(this, 10);
         }
     };
-
-
-
 }

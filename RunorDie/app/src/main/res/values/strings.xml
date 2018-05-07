@@ -41,7 +41,10 @@
 
     <!-- Strings related to SQL requests -->
     <string name="sql_select_tracks">
-        SELECT t._id, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime
+        SELECT t._id, t.serverId, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime
+    </string>
+    <string name="sql_select_tracks_server_id">
+        SELECT serverId FROM track
     </string>
     <string name="sql_select_notifications">
         SELECT n._id, n.executionTime, n.title FROM notification n ORDER BY n.executionTime
@@ -49,8 +52,11 @@
     <string name="sql_select_track">
         SELECT t.runTime, t.distance, t.points FROM track t WHERE t._id = ?
     </string>
-    <string name="sql_insert_track">
+    <string name="sql_insert_track_no_serverId">
         INSERT INTO track (startTime, distance, runTime, points) VALUES (?, ?, ?, ?)
+    </string>
+    <string name="sql_insert_track">
+        INSERT INTO track (startTime, serverId, distance, runTime, points) VALUES (?, ?, ?, ?, ?)
     </string>
     <string name="sql_insert_notification">
        INSERT INTO notification (executionTime, title) VALUES (?, ?)
@@ -65,5 +71,6 @@
     <string name="yes">yes</string>
     <string name="toast_permission_write_external_not_granted">Access denied</string>
     <string name="frag_notifications_fab_tooltip">Add new notification</string>
+    <string name="internet_connection_error">No Internet connection</string>
 
 </resources>

@@ -1,7 +1,6 @@
 package com.paranoid.runordie.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,12 +19,11 @@ import android.view.ViewGroup;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.Test;
-import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.adapters.NotificationRecyclerAdapter;
 import com.paranoid.runordie.dialogs.MyDatePickerDialog;
 import com.paranoid.runordie.dialogs.MyTimePickerDialog;
 import com.paranoid.runordie.helpers.DbCrudHelper;
-import com.paranoid.runordie.helpers.SwipeController;
+import com.paranoid.runordie.controllers.SwipeController;
 import com.paranoid.runordie.models.Notification;
 import com.paranoid.runordie.utils.DateConverter;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
@@ -105,7 +103,11 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
         mNotifications = new ArrayList<>();
         mAdapter = new NotificationRecyclerAdapter(this, mNotifications);
         RecyclerView recyclerView = view.findViewById(R.id.frag_notification_rv_notifications);
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(
+                App.getInstance(),
+                LinearLayoutManager.VERTICAL,
+                false
+        ));
         recyclerView.setAdapter(mAdapter);
 
         SwipeController swipeController = new SwipeController();
@@ -141,7 +143,6 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
                     mNotifications.add(notification);
                 } while (data.moveToNext());
             }
-            data.close();
         }
     }
 
@@ -198,7 +199,6 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
             } else {
                 createNotification(notification);
             }
-
         }
     }
 

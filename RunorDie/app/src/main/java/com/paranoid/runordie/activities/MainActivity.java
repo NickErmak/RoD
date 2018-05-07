@@ -3,6 +3,7 @@ package com.paranoid.runordie.activities;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -43,8 +44,6 @@ public class MainActivity extends BaseActivity
         });
 
         showFragment(HomeFragment.newInstance(), true);
-
-        //TODO: REFRESH DATA FROM SERVER
     }
 
     public void showFragment(
@@ -150,5 +149,10 @@ public class MainActivity extends BaseActivity
     @Override
     public void onTrackClick(long trackId) {
         showFragment(TrackFragment.newInstance(trackId), false);
+    }
+
+    @Override
+    public CoordinatorLayout getRootLayout() {
+        return findViewById(R.id.main_root_layout);
     }
 }

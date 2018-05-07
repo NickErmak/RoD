@@ -1,6 +1,7 @@
-package com.paranoid.runordie.network.interceptors;
+package com.paranoid.runordie.server.interceptors;
 
 import com.paranoid.runordie.App;
+import com.paranoid.runordie.models.Session;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,12 +22,12 @@ public class AuthInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        String token = App.getInstance().getState().getToken();
+        Session session = App.getInstance().getState().getActiveSession();
 
-        if (token != null) {
+        if (session != null) {
             RequestBody requestBody = request.body();
             MediaType contentType = requestBody.contentType();
-            requestBody = putTokenToBody(token, requestBody, contentType);
+            requestBody = putTokenToBody(session.getToken(), requestBody, contentType);
             request = request.newBuilder()
                     .post(requestBody)
                     .build();
@@ -48,10 +49,9 @@ public class AuthInterceptor implements Interceptor {
 
     private String bodyToString(final RequestBody request) {
         try {
-            final RequestBody copy = request;
             final Buffer buffer = new Buffer();
-            if (copy != null)
-                copy.writeTo(buffer);
+            if (request != null)
+                request.writeTo(buffer);
             else
                 return "";
             return buffer.readUtf8();

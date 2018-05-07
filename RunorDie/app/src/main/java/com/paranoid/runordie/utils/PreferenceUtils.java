@@ -1,15 +1,17 @@
 package com.paranoid.runordie.utils;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.paranoid.runordie.App;
 
 public class PreferenceUtils {
 
-    public static final String DEFAULT_VALUE = "";
     private static final String LOGIN_KEY = "LOGIN_KEY";
     private static final String PASSWORD_KEY = "PASSWORD_KEY";
+    private static final String FIRST_LAUNCH_KEY = "FIRST_LAUNCH_KEY";
 
     private static SharedPreferences sPref;
     private static SharedPreferences.Editor editor;
@@ -19,8 +21,17 @@ public class PreferenceUtils {
         editor = sPref.edit();
     }
 
+    public static boolean isFirstLaunch() {
+        boolean firstLaunch = sPref.getBoolean(FIRST_LAUNCH_KEY, true);
+        return firstLaunch;
+    }
+
+    public static void executeFirstLaunch() {
+        editor.putBoolean(FIRST_LAUNCH_KEY, false).apply();
+    }
+
     public static String getLogin() {
-        return getPref(LOGIN_KEY, DEFAULT_VALUE);
+        return getPref(LOGIN_KEY);
     }
 
     public static void setLogin(String loginValue) {
@@ -28,20 +39,23 @@ public class PreferenceUtils {
     }
 
     public static String getPassword() {
-        return getSecurePref(PASSWORD_KEY, DEFAULT_VALUE);
+        return getSecurePref(PASSWORD_KEY);
     }
 
     public static void setPassword(String passwordValue) {
         setSecurePref(PASSWORD_KEY, passwordValue);
     }
 
-    private static String getSecurePref(String prefKey, String defValue) {
-        return SecurityUtils.decode(getPref(prefKey, defValue));
+    private static String getSecurePref(String prefKey) {
+        String pref = getPref(prefKey);
+        return pref != null ? SecurityUtils.decode(pref) : null;
     }
 
-    private static String getPref(String prefKey, String defValue) {
-        return sPref.getString(prefKey, defValue);
+    private static String getPref(String prefKey) {
+        return sPref.getString(prefKey, null);
     }
+
+
 
     private static void setSecurePref(String prefKey, String prefValue) {
         setPref(prefKey, SecurityUtils.encode(prefValue));
@@ -49,6 +63,6 @@ public class PreferenceUtils {
 
     private static void setPref(String prefKey, String prefValue) {
         editor.putString(prefKey, prefValue)
-                .commit();
+                .apply();
     }
 }

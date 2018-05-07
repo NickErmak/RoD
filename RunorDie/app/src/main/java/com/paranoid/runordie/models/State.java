@@ -1,32 +1,33 @@
 package com.paranoid.runordie.models;
 
+import com.paranoid.runordie.activities.BaseActivity;
+
 public class State {
-    private User user;
-    private String token;
-    private boolean isLoading;
+    private Session mActiveSession;
+    private BaseActivity mCurrentActivity = null;
+    private boolean mIsLoading;
+
+    public Session getActiveSession() {
+        return mActiveSession;
+    }
+
+    public void setActiveSession(Session activeSession) {
+        mActiveSession = activeSession;
+    }
+
+    public BaseActivity getCurrentActivity() {
+        return mCurrentActivity;
+    }
+
+    public void setCurrentActivity(BaseActivity currentActivity) {
+        mCurrentActivity = currentActivity;
+    }
 
     public boolean isLoading() {
-        return isLoading;
+        return mIsLoading;
     }
 
-    public void setLoading(boolean isLoading) {
-        this.isLoading = isLoading;
+    public void setLoading(boolean loading) {
+        mIsLoading = loading;
     }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
 }

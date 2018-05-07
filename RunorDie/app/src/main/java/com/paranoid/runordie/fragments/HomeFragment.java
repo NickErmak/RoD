@@ -1,13 +1,17 @@
 package com.paranoid.runordie.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,8 +26,21 @@ import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.adapters.RecyclerViewCursorAdapter;
 import com.paranoid.runordie.adapters.TrackAdapter;
 import com.paranoid.runordie.helpers.DbCrudHelper;
-import com.paranoid.runordie.network.NetworkUtils;
+import com.paranoid.runordie.models.Track;
+import com.paranoid.runordie.models.httpResponses.TrackResponse;
+import com.paranoid.runordie.server.ApiClient;
+import com.paranoid.runordie.server.Callback;
+import com.paranoid.runordie.server.NetworkException;
+import com.paranoid.runordie.server.NetworkProvider;
+import com.paranoid.runordie.utils.PreferenceUtils;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.ACTION;
+import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.BROADCAST_ACTION;
+import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.EXTRA_ACTION;
 
 
 public class HomeFragment extends AbstractFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -50,7 +67,34 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     private RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private IOnTrackClickEvent mOnTrackClickEvent;
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e("TAG", "broadcast received (home frag)");
+            ACTION action = (ACTION) intent.getSerializableExtra(EXTRA_ACTION);
+            switch (action) {
+              /*  case ERROR:
+                    String errorCode = intent.getStringExtra(EXTRA_ERROR);
+                    if (errorCode.equals(AbstractResponse.INVALID_TOKEN)) {
+                        //TODO: snack
+                        Toast.makeText(getApplicationContext(), "Authorization error", Toast.LENGTH_LONG).show();
 
+                        Intent intent2 = new Intent(getApplicationContext(), AuthActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent2);
+                        finish();
+                    }
+
+                    Log.e("TAG", "error_code: " + errorCode);
+                    break;*/
+
+                //TODO: test. rebuild for bolts
+                case TRACKS_REFRESHED:
+                    loadTracksFromDB();
+                    break;
+            }
+        }
+    };
 
     public HomeFragment() {
         super(FRAGMENT_TITLE, FRAGMENT_TAG);
@@ -76,14 +120,47 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.frag_home_fab).setOnClickListener(new View.OnClickListener() {
+        setFab((FloatingActionButton) view.findViewById(R.id.frag_home_fab));
+        setAdapter((RecyclerView) view.findViewById(R.id.frag_home_rv_tracks));
+        setSwipeRefresh((SwipeRefreshLayout) view.findViewById(R.id.home_swipe_refresh));
+
+        if (!PreferenceUtils.isFirstLaunch()) {
+            loadTracksFromDB();
+        }
+
+        ApiClient.getInstance().getTracks(new Callback<TrackResponse>() {
+            @Override
+            public void success(TrackResponse result) {
+                if (PreferenceUtils.isFirstLaunch()) {
+                    DbCrudHelper.refreshTracks(result.getTracks());
+                } else {
+                    Loader<Cursor> cursorLoader = getLoaderManager().getLoader(LOADER_ID);
+                    NetworkProvider.refreshDbAsync(cursorLoader);
+                }
+
+                loadTracksFromDB();
+                //TODO:refresh server data
+            }
+
+            @Override
+            public void failure(NetworkException exception) {
+                Log.d("TAG", exception.getErrorCode());
+            }
+        });
+
+    }
+
+    private void setFab(FloatingActionButton fab) {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), RunActivity.class));
             }
         });
+    }
 
-        mSwipeRefreshLayout = view.findViewById(R.id.home_swipe_refresh);
+    private void setSwipeRefresh(SwipeRefreshLayout swipeRefresh) {
+        mSwipeRefreshLayout = swipeRefresh;
         mSwipeRefreshLayout.setColorSchemeResources(R.color.app_accent, R.color.app_primary_dark, R.color.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -91,24 +168,30 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
                 refreshPosts();
             }
         });
-
-        mAdapter = new TrackAdapter(null, mOnTrackClickEvent);
-        RecyclerView recyclerView = view.findViewById(R.id.frag_home_rv_tracks);
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        recyclerView.setAdapter(mAdapter);
-
         mSwipeRefreshLayout.setRefreshing(true);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
 
-        //TODO: add refresh from server
-        NetworkUtils.getTracks();
-        // refreshPosts();
+    private void setAdapter(RecyclerView recyclerView) {
+        mAdapter = new TrackAdapter(null, mOnTrackClickEvent);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(mAdapter);
+    }
+
+    private void loadTracksFromDB() {
+        LoaderManager lm = getLoaderManager();
+        if (lm.getLoader(LOADER_ID) == null) {
+            lm.initLoader(LOADER_ID, null, this);
+        } else {
+            lm.restartLoader(LOADER_ID, null, this);
+        }
     }
 
     private void refreshPosts() {
         mSwipeRefreshLayout.setRefreshing(true);
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
+
+
 
     @NonNull
     @Override
@@ -126,5 +209,21 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
+                receiver,
+                new IntentFilter(BROADCAST_ACTION)
+        );
     }
 }

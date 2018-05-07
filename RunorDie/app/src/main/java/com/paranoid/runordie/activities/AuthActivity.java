@@ -1,8 +1,8 @@
 package com.paranoid.runordie.activities;
 
-import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -11,7 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.paranoid.runordie.R;
-import com.paranoid.runordie.network.NetworkUtils;
+import com.paranoid.runordie.models.User;
+import com.paranoid.runordie.server.ApiClient;
+import com.paranoid.runordie.server.NetworkProvider;
+import com.paranoid.runordie.server.NetworkProviderTasks;
+import com.paranoid.runordie.server.NetworkUtils;
 import com.paranoid.runordie.utils.PreferenceUtils;
 
 public class AuthActivity extends BaseActivity {
@@ -59,7 +63,6 @@ public class AuthActivity extends BaseActivity {
             }
         });
 
-
         switchMode(MODE.SIGN_UP);
     }
 
@@ -86,8 +89,6 @@ public class AuthActivity extends BaseActivity {
 
     private void attemptSignUp() {
         //TODO: check fields for errors
-
-
     }
 
 
@@ -126,7 +127,8 @@ public class AuthActivity extends BaseActivity {
             showProgress(true);
             PreferenceUtils.setLogin(email);
             PreferenceUtils.setPassword(password);
-            NetworkUtils.login(email, password);
+            //TODO
+           // NetworkProviderTasks.loginAsync(new User(email, password));
         }
     }
 
@@ -138,6 +140,11 @@ public class AuthActivity extends BaseActivity {
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
+    }
+
+    @Override
+    public CoordinatorLayout getRootLayout() {
+        return findViewById(R.id.auth_root_layout);
     }
 }
 

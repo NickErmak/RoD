@@ -19,6 +19,9 @@ android {
 }
 
 dependencies {
+    implementation 'com.parse.bolts:bolts-tasks:1.4.0'
+    implementation 'com.parse.bolts:bolts-applinks:1.4.0'
+    implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.google.android.gms:play-services-maps:15.0.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '3.10.0'
