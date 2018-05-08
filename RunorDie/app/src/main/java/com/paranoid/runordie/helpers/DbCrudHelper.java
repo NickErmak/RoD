@@ -4,7 +4,6 @@ package com.paranoid.runordie.helpers;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,8 +11,6 @@ import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.Notification;
 import com.paranoid.runordie.models.Track;
-import com.paranoid.runordie.utils.PreferenceUtils;
-import com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -27,42 +24,15 @@ public class DbCrudHelper {
         db.execSQL(sql);
     }
 
-    public static Cursor loadTracks() {
+    public static Cursor loadTrackCursor() {
         return App.getInstance().getDb().rawQuery(
                 App.getInstance().getString(R.string.sql_select_tracks),
                 null
         );
     }
 
-    public static Cursor loadNotifications() {
-        return App.getInstance().getDb().rawQuery(
-                App.getInstance().getString(R.string.sql_select_notifications),
-                null
-        );
-    }
-
-    //TODO: background
-    public static void refreshTracks(List<Track> dbTracks, List<Track> serverTracks) {
-        serverTracks.removeAll(dbTracks);
-        refreshTracks(serverTracks);
-    }
-
-    public static void refreshTracks(List<Track> serverTracks) {
-
-        for (Track track : serverTracks) {
-            Log.e("TAG", "track before inserting" + track.toString());
-            insertTrackWithServerId(track);
-        }
-
-        if (PreferenceUtils.isFirstLaunch()) {
-            PreferenceUtils.executeFirstLaunch();
-        }
-
-
-    }
-
-    public static List<Long> getTrackServerIdList() {
-        List<Long> serverIdList = new LinkedList<>();
+    public static List<Track> loadTracksServerIdOnly() {
+        List<Track> tracks = new LinkedList<>();
 
         Cursor cursor = App.getInstance().getDb().rawQuery(
                 App.getInstance().getString(R.string.sql_select_tracks_server_id),
@@ -72,12 +42,20 @@ public class DbCrudHelper {
             if (cursor.moveToFirst()) {
                 int serverIdIndex = cursor.getColumnIndexOrThrow(Track.ID);
                 do {
-                    serverIdList.add(cursor.getLong(serverIdIndex));
+                    long serverId = cursor.getLong(serverIdIndex);
+                    tracks.add(new Track(serverId));
                 } while (cursor.moveToNext());
             }
             cursor.close();
         }
-        return serverIdList;
+        return tracks;
+    }
+
+    public static Cursor loadNotifications() {
+        return App.getInstance().getDb().rawQuery(
+                App.getInstance().getString(R.string.sql_select_notifications),
+                null
+        );
     }
 
     public static List<Notification> getNotifications() {
@@ -146,6 +124,12 @@ public class DbCrudHelper {
                 App.getInstance().getString(R.string.sql_insert_track_no_serverId),
                 args
         );
+    }
+
+    public static void insertTracks(List<Track> tracks) {
+        for (Track track : tracks) {
+            insertTrackWithServerId(track);
+        }
     }
 
     public static long insert(String sql, String[] columns) {

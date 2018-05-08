@@ -22,9 +22,8 @@ public class Track {
     private int distance;
     private List<LatLng> points;
 
-    public Track(Long id, Long _id) {
+    public Track(Long id) {
         this.id = id;
-        this._id = _id;
     }
 
     public Track(long startTime, long runTime, int distance, List<LatLng> points) {

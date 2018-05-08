@@ -6,6 +6,7 @@ public class State {
     private Session mActiveSession;
     private BaseActivity mCurrentActivity = null;
     private boolean mIsLoading;
+    private boolean serverSyncRunning;
 
     public Session getActiveSession() {
         return mActiveSession;
@@ -29,5 +30,13 @@ public class State {
 
     public void setLoading(boolean loading) {
         mIsLoading = loading;
+    }
+
+    public boolean isServerSyncRunning() {
+        return serverSyncRunning;
+    }
+
+    public void setServerSyncRunning(boolean serverSyncRunning) {
+        this.serverSyncRunning = serverSyncRunning;
     }
 }

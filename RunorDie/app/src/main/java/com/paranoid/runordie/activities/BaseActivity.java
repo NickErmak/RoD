@@ -33,6 +33,11 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
             Log.e("TAG", "broadcast received (base activity)");
             ACTION action = (ACTION) intent.getSerializableExtra(EXTRA_ACTION);
             switch (action) {
+                case SUCCESS_LOGIN:
+                    Intent routeMainIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    routeMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(routeMainIntent);
+                    break;
               /*  case ERROR:
                     String errorCode = intent.getStringExtra(EXTRA_ERROR);
                     if (errorCode.equals(AbstractResponse.INVALID_TOKEN)) {

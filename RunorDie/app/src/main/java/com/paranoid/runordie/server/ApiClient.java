@@ -11,6 +11,9 @@ import com.paranoid.runordie.models.httpResponses.SaveTrackResponse;
 import com.paranoid.runordie.models.httpResponses.TrackResponse;
 import com.paranoid.runordie.server.services.ServerService;
 
+import java.io.IOException;
+import java.util.List;
+
 //TODO: CATCH ALL ERRORS
 public class ApiClient {
 

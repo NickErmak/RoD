@@ -52,6 +52,7 @@ public class NetworkProviderTasks {
                 Log.d("TAG", "success login");
                 Session activeSession = new Session(user, result.getToken());
                 App.getInstance().getState().setActiveSession(activeSession);
+                AppBroadcast.sendBroadcast(AppBroadcast.ACTION.SUCCESS_LOGIN);
             }
 
             @Override

@@ -26,7 +26,8 @@
 
         <TextView
             android:id="@+id/list_track_distance_title"
-            android:layout_toRightOf="@id/list_track_startTime_title"
+            android:layout_toRightOf="@id/list_track_startTime_value"
+            android:layout_marginLeft="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Distance:" />
@@ -41,6 +42,7 @@
         <TextView
             android:id="@+id/list_track_runTime_title"
             android:layout_toRightOf="@id/list_track_distance_title"
+            android:layout_marginLeft="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Total time:" />

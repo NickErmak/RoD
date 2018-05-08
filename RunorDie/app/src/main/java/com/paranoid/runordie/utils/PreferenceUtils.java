@@ -1,9 +1,7 @@
 package com.paranoid.runordie.utils;
 
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.paranoid.runordie.App;
 
@@ -22,8 +20,7 @@ public class PreferenceUtils {
     }
 
     public static boolean isFirstLaunch() {
-        boolean firstLaunch = sPref.getBoolean(FIRST_LAUNCH_KEY, true);
-        return firstLaunch;
+        return sPref.getBoolean(FIRST_LAUNCH_KEY, true);
     }
 
     public static void executeFirstLaunch() {
@@ -54,7 +51,6 @@ public class PreferenceUtils {
     private static String getPref(String prefKey) {
         return sPref.getString(prefKey, null);
     }
-
 
 
     private static void setSecurePref(String prefKey, String prefValue) {

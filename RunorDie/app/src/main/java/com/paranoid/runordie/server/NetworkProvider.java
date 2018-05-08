@@ -1,9 +1,6 @@
 package com.paranoid.runordie.server;
 
 import android.database.Cursor;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.Loader;
 import android.util.Log;
 
 import com.paranoid.runordie.helpers.DbCrudHelper;
@@ -15,6 +12,7 @@ import com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -22,105 +20,107 @@ import bolts.TaskCompletionSource;
 
 public class NetworkProvider {
 
-    /*  public static void loginAndRefresh(User user) {
-          loginAndRefreshAsync(user).getResult();
-      }
-
-      private static Task<Void> loginAndRefreshAsync(User user) {
-          return loginAsync(user).onSuccessTask(new Continuation<LoginResponse, Task<Void>>() {
-              @Override
-              public Task<Void> then(Task<LoginResponse> task) {
-                  return refreshDbAsync();
-              }
-          });
-      }*/
-    private static List<Track> getCurrentTrackList(Cursor cursor) {
-        List<Track> tracks = new LinkedList<>();
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                int trackIdIndex = cursor.getColumnIndexOrThrow(Track._ID);
-                int serverIdIndex = cursor.getColumnIndexOrThrow(Track.ID);
-
-                do {
-                    long serverId = cursor.getLong(serverIdIndex);
-                    long _id = cursor.getLong(trackIdIndex);
-
-                    Track track = new Track(serverId, _id);
-                    tracks.add(track);
-                } while (cursor.moveToNext());
-            }
-        }
-        return tracks;
+    public static void syncDbWithServer() {
+        syncDbWithServerAsync().getResult();
     }
 
+    private static Task<Void> syncDbWithServerAsync() {
 
-    public static Task<TrackListResult> loaderAsync(Loader<Cursor> loader) {
-        Log.d("TAG", "trying to load tracks from server");
-        final TaskCompletionSource<TrackListResult> tcs = new TaskCompletionSource<>();
-
-
-        loader.registerListener(11, new Loader.OnLoadCompleteListener<Cursor>() {
+        return Task.callInBackground(new Callable<List<TrackListResult>>() {
             @Override
-            public void onLoadComplete(@NonNull Loader<Cursor> loader, @Nullable Cursor data) {
-                Log.e("TAG", "listener catched!");
-                TrackListResult result = new TrackListResult(
-                        TrackListResult.TYPE_FROM.DATABASE,
-                        getCurrentTrackList(data)
-                );
-                tcs.setResult(result);
+            public List<TrackListResult> call() throws Exception {
+                return Task.whenAllResult(loadTrackLists()).getResult();
             }
-        });
-        return tcs.getTask();
-    }
 
-
-    public static Task<List<TrackListResult>> refreshDbAsync(final Loader<Cursor> trackLoader) {
-
-        List<Task<TrackListResult>> tasks = new ArrayList<>();
-        tasks.add(loaderAsync(trackLoader));
-        tasks.add(getTracksAsync());
-
-        return Task.whenAllResult(tasks);
-
-    }
-
-    /*public static Task<Void> refreshDbFirstLaunchAsync() {
-        return getTracksAsync().onSuccessTask(new Continuation<TrackResponse, Task<Void>>() {
+        }).onSuccessTask(new Continuation<List<TrackListResult>, Task<Void>>() {
             @Override
-            public Task<Void> then(Task<TrackResponse> task) {
-                DbCrudHelper.loadTracks();
-                return null;
+            public Task<Void> then(Task<List<TrackListResult>> task) {
+                List<Track> serverTracks = null,
+                        dbTracks = null;
+                for (TrackListResult result : task.getResult()) {
+                    if (result.getType() == TrackListResult.TYPE_FROM.SERVER) {
+                        serverTracks = result.getTracks();
+                    }
+                    if (result.getType() == TrackListResult.TYPE_FROM.DATABASE) {
+                        dbTracks = result.getTracks();
+                    }
+                }
+                return refreshDbAsync(serverTracks, dbTracks);
             }
-        }).onSuccess(new Continuation<Void, Void>() {
+        }).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) throws Exception {
-                HomeBroadcast.sendBroadcast(HomeBroadcast.ACTION.TRACKS_REFRESHED);
+                if (task.isCompleted()) {
+                    Log.d("TAG", "synchronization: OK");
+                    HomeBroadcast.sendBroadcast(HomeBroadcast.ACTION.TRACKS_REFRESHED);
+                }
+                if (task.isFaulted()) {
+                    Log.e("TAG", "synchronization: ERROR " + task.getError().getMessage());
+                }
                 return null;
             }
         }, Task.UI_THREAD_EXECUTOR);
-    }*/
+    }
 
+    private static List<Task<TrackListResult>> loadTrackLists() {
+        List<Task<TrackListResult>> tasks = new ArrayList<>();
+        Task<TrackListResult> serverLoadTask = getServerTracksAsync();
+        Task<TrackListResult> dbLoadTask = getDbTrackIdAsync();
+        try {
+            serverLoadTask.waitForCompletion();
+            dbLoadTask.waitForCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        tasks.add(serverLoadTask);
+        tasks.add(dbLoadTask);
+        return tasks;
+    }
 
-    static Task<TrackListResult> getTracksAsync() {
-        Log.d("TAG", "trying to load tracks from server");
+    private static Task<TrackListResult> getDbTrackIdAsync() {
+        return Task.callInBackground(new Callable<TrackListResult>() {
+            @Override
+            public TrackListResult call() {
+                Log.d("TAG", "loading tracks from DB..");
+                List<Track> dbTrackList = DbCrudHelper.loadTracksServerIdOnly();
+                Log.d("TAG", "loading tracks from DB: SUCCESS");
+                return new TrackListResult(
+                        TrackListResult.TYPE_FROM.DATABASE,
+                        dbTrackList
+                );
+            }
+        });
+    }
+
+    private static Task<TrackListResult> getServerTracksAsync() {
+        Log.d("TAG", "loading tracks from server..");
         final TaskCompletionSource<TrackListResult> tcs = new TaskCompletionSource<>();
-
         ApiClient.getInstance().getTracks(new Callback<TrackResponse>() {
             @Override
             public void success(TrackResponse response) {
                 TrackListResult result = new TrackListResult(
                         TrackListResult.TYPE_FROM.SERVER,
                         response.getTracks()
-                        );
+                );
+                Log.d("TAG", "loading tracks from server: SUCCESS");
                 tcs.setResult(result);
-                Log.d("TAG", "success track loading");
             }
 
             @Override
             public void failure(NetworkException exception) {
+                Log.d("TAG", "loading tracks from server: ERROR "
+                        + exception.getErrorCode());
                 tcs.setError(exception);
             }
         });
         return tcs.getTask();
+    }
+
+    private static Task<Void> refreshDbAsync(List<Track> serverTracks, List<Track> dbTracks) {
+        serverTracks.removeAll(dbTracks);
+        Log.e("TAG", "tack for inserting" + serverTracks);
+        DbCrudHelper.insertTracks(serverTracks);
+        Log.d("TAG", "refreshing DB tracks: SUCCESS");
+        return null;
     }
 }

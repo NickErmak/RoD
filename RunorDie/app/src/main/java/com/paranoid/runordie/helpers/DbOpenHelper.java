@@ -18,7 +18,7 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.e("TAG", "creating database");
+        Log.d("TAG", "creating database");
         for (int i = 1; i <= DB_VERSION; i++) {
             migrate(db, i);
         }
@@ -26,14 +26,14 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.e("TAG", "upgrading database");
+        Log.d("TAG", "upgrading database");
         while (oldVersion < newVersion) {
             migrate(db, ++oldVersion);
         }
     }
 
     private void migrate(SQLiteDatabase db, int i) {
-        Log.e("TAG", "migrate DB to version " + i);
+        Log.d("TAG", "migrate DB to version " + i);
         switch (i) {
             case 1:
                 String[] tables = App.getInstance().getResources().getStringArray(R.array.tables);

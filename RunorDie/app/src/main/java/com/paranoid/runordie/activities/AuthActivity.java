@@ -128,7 +128,7 @@ public class AuthActivity extends BaseActivity {
             PreferenceUtils.setLogin(email);
             PreferenceUtils.setPassword(password);
             //TODO
-           // NetworkProviderTasks.loginAsync(new User(email, password));
+            NetworkProviderTasks.loginAsync(new User(email, password));
         }
     }
 

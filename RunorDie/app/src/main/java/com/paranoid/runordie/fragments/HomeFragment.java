@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.net.Network;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -42,7 +43,6 @@ import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.ACTION;
 import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.BROADCAST_ACTION;
 import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.EXTRA_ACTION;
 
-
 public class HomeFragment extends AbstractFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public interface IOnTrackClickEvent {
@@ -56,7 +56,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
         @Override
         public Cursor loadInBackground() {
-            return DbCrudHelper.loadTracks();
+            return DbCrudHelper.loadTrackCursor();
         }
     }
 
@@ -88,8 +88,9 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
                     Log.e("TAG", "error_code: " + errorCode);
                     break;*/
 
-                //TODO: test. rebuild for bolts
+
                 case TRACKS_REFRESHED:
+                    App.getInstance().getState().setServerSyncRunning(false);
                     loadTracksFromDB();
                     break;
             }
@@ -127,27 +128,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         if (!PreferenceUtils.isFirstLaunch()) {
             loadTracksFromDB();
         }
-
-        ApiClient.getInstance().getTracks(new Callback<TrackResponse>() {
-            @Override
-            public void success(TrackResponse result) {
-                if (PreferenceUtils.isFirstLaunch()) {
-                    DbCrudHelper.refreshTracks(result.getTracks());
-                } else {
-                    Loader<Cursor> cursorLoader = getLoaderManager().getLoader(LOADER_ID);
-                    NetworkProvider.refreshDbAsync(cursorLoader);
-                }
-
-                loadTracksFromDB();
-                //TODO:refresh server data
-            }
-
-            @Override
-            public void failure(NetworkException exception) {
-                Log.d("TAG", exception.getErrorCode());
-            }
-        });
-
+        refreshPosts();
     }
 
     private void setFab(FloatingActionButton fab) {
@@ -168,7 +149,6 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
                 refreshPosts();
             }
         });
-        mSwipeRefreshLayout.setRefreshing(true);
     }
 
     private void setAdapter(RecyclerView recyclerView) {
@@ -187,11 +167,12 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     }
 
     private void refreshPosts() {
-        mSwipeRefreshLayout.setRefreshing(true);
-        getLoaderManager().restartLoader(LOADER_ID, null, this);
+        if (!App.getInstance().getState().isServerSyncRunning()) {
+            App.getInstance().getState().setServerSyncRunning(true);
+            mSwipeRefreshLayout.setRefreshing(true);
+            NetworkProvider.syncDbWithServer();
+        }
     }
-
-
 
     @NonNull
     @Override
@@ -210,7 +191,6 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
-
 
     @Override
     public void onPause() {
