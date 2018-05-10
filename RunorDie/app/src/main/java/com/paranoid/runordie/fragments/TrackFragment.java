@@ -30,6 +30,7 @@ import com.paranoid.runordie.R;
 import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.utils.DateConverter;
+import com.paranoid.runordie.utils.JsonConverter;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
 
 import java.lang.reflect.Type;
@@ -58,7 +59,7 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
     private static final String KEY_TRACK_ID = "KEY_TRACK_ID";
 
     private long trackId;
-    private List<LatLng> points;
+    private List<LatLng> mPoints;
     private SupportMapFragment mMapFragment;
     private TextView mTvRunTime, mTvDistance;
 
@@ -97,25 +98,25 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
 
         googleMap.addMarker(new MarkerOptions()
                 .title("Start")
-                .position(points.get(0))
+                .position(mPoints.get(0))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
         );
         googleMap.addMarker(new MarkerOptions()
                 .title("Finish")
-                .position(points.get(points.size() - 1))
+                .position(mPoints.get(mPoints.size() - 1))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
         );
 
         googleMap.addPolyline(new PolylineOptions()
                 .color(getResources().getColor(R.color.app_accent))
                 .clickable(true)
-                .addAll(points)
+                .addAll(mPoints)
         );
 
         // Position the map's camera near Alice Springs in the center of Australia,
         // and set the zoom factor so most of Australia shows on the screen.
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LatLng point : points) {
+        for (LatLng point : mPoints) {
             builder.include(point);
         }
         LatLngBounds bounds = builder.build();
@@ -148,14 +149,12 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
                 long distance = data.getInt(distanceColumnIndex);
                 pointsJson = data.getString(pointsColumnIndex);
 
+                mPoints = JsonConverter.convertJson(pointsJson);
                 mTvRunTime.setText(DateConverter.parseTimeToString(runTime));
                 mTvDistance.setText(String.valueOf(distance));
             }
             data.close();
-            Type listType = new TypeToken<LinkedList<LatLng>>() {
-            }.getType();
-            Gson gson = new Gson();
-            points = gson.fromJson(pointsJson, listType);
+
             mMapFragment.getMapAsync(this);
         } else {
             //TODO: snack?

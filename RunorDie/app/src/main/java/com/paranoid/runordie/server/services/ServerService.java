@@ -1,5 +1,6 @@
 package com.paranoid.runordie.server.services;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.models.User;
 import com.paranoid.runordie.models.httpResponses.LoginResponse;
@@ -10,7 +11,12 @@ import com.paranoid.runordie.models.httpResponses.TrackResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.Path;
 
 public interface ServerService {
 
@@ -27,5 +33,5 @@ public interface ServerService {
     Call<SaveTrackResponse> saveTrack(@Body Track track);
 
     @POST("/senla-training-addition/lesson-26.php?method=points")
-    Call<PointsResponse> getTrackPoints(@Body long trackId);
+    Call<PointsResponse> getTrackPoints(@Body Track track);
 }

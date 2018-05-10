@@ -1,6 +1,8 @@
 package com.paranoid.runordie.models;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.Date;
 import java.util.List;
@@ -15,26 +17,37 @@ public class Track {
     public static final String DISTANCE = "distance";
     public static final String POINTS = "points";
 
-    private long _id;   //DB id
-    private long id;    // Server id
-    private long startTime;
-    private long runTime;
-    private int distance;
+    //don't use simple types because of retrofit requests:
+    // in this case null values won't be send to server
+
+    private Long _id;   //DB id
+    private Long id;    // Server id
+    private Long beginsAt;
+    private Long time;
+    private Integer distance;
     private List<LatLng> points;
 
     public Track(Long id) {
         this.id = id;
     }
 
-    public Track(long startTime, long runTime, int distance, List<LatLng> points) {
-        this(null, null, startTime, runTime, distance, points);
+    public Track(long beginsAt, long time, int distance, List<LatLng> points) {
+        this (null, beginsAt, time, distance, points);
     }
 
-    public Track(Long id, Long _id, long startTime, long runTime, int distance, List<LatLng> points) {
+    public Track(Long _id, long beginsAt, long time, int distance, List<LatLng> points) {
+        this._id = _id;
+        this.beginsAt = beginsAt;
+        this.time = time;
+        this.distance = distance;
+        this.points = points;
+    }
+
+    public Track(Long id, Long _id, long beginsAt, long time, int distance, List<LatLng> points) {
         this.id = id;
         this._id = _id;
-        this.startTime = startTime;
-        this.runTime = runTime;
+        this.beginsAt = beginsAt;
+        this.time = time;
         this.distance = distance;
         this.points = points;
     }
@@ -47,20 +60,20 @@ public class Track {
         this._id = dbId;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public long getBeginsAt() {
+        return beginsAt;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    public void setBeginsAt(long beginsAt) {
+        this.beginsAt = beginsAt;
     }
 
-    public long getRunTime() {
-        return runTime;
+    public long getTime() {
+        return time;
     }
 
-    public void setRunTime(long runTime) {
-        this.runTime = runTime;
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public int getDistance() {
@@ -92,11 +105,11 @@ public class Track {
         return "Track{" +
                 "_id=" + _id +
                 ", id=" + id +
-                ", startTime=" + startTime +
-                ", runTime=" + runTime +
+                ", beginsAt=" + beginsAt +
+                ", time=" + time +
                 ", distance=" + distance +
                 ", points=" + points +
-                '}';
+               '}';
     }
 
     @Override
@@ -106,6 +119,6 @@ public class Track {
 
         Track track = (Track) o;
 
-        return id == track.id;
+        return id.equals(track.id);
     }
 }

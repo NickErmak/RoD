@@ -48,7 +48,7 @@ public class ApiClient {
     }
 
     public void getTrackPoints(long trackId, final Callback<PointsResponse> callback) {
-        serverServiceInstance.getTrackPoints(trackId).enqueue(callback);
+        serverServiceInstance.getTrackPoints(new Track(trackId)).enqueue(callback);
     }
 
     public void saveTrack(Track track, final Callback<SaveTrackResponse> callback) {

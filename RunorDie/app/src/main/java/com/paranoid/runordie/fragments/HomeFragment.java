@@ -29,6 +29,7 @@ import com.paranoid.runordie.adapters.TrackAdapter;
 import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.models.httpResponses.TrackResponse;
+import com.paranoid.runordie.providers.SynchronizationProvider;
 import com.paranoid.runordie.server.ApiClient;
 import com.paranoid.runordie.server.Callback;
 import com.paranoid.runordie.server.NetworkException;
@@ -87,8 +88,6 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
                     Log.e("TAG", "error_code: " + errorCode);
                     break;*/
-
-
                 case TRACKS_REFRESHED:
                     App.getInstance().getState().setServerSyncRunning(false);
                     loadTracksFromDB();
@@ -170,7 +169,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         if (!App.getInstance().getState().isServerSyncRunning()) {
             App.getInstance().getState().setServerSyncRunning(true);
             mSwipeRefreshLayout.setRefreshing(true);
-            NetworkProvider.syncDbWithServer();
+            SynchronizationProvider.synchronize();
         }
     }
 

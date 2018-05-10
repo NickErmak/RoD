@@ -4,14 +4,19 @@ package com.paranoid.runordie.helpers;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.Notification;
 import com.paranoid.runordie.models.Track;
+import com.paranoid.runordie.utils.JsonConverter;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +49,53 @@ public class DbCrudHelper {
                 do {
                     long serverId = cursor.getLong(serverIdIndex);
                     tracks.add(new Track(serverId));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        return tracks;
+    }
+
+    public static void updateTrackServerId(Track track) {
+        App.getInstance().getDb().execSQL(
+                App.getInstance().getString(R.string.sql_update_track_server_id),
+                new String[]{
+                        String.valueOf(track.getServerId()),
+                        String.valueOf(track.getDbId())
+                }
+        );
+    }
+
+    public static List<Track> loadTracksNoServerId() {
+        List<Track> tracks = new LinkedList<>();
+
+        Cursor cursor = App.getInstance().getDb().rawQuery(
+                App.getInstance().getString(R.string.sql_select_tracks_unsync),
+                null
+        );
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int _idIndex = cursor.getColumnIndex(Track._ID);
+                int distanceIndex = cursor.getColumnIndexOrThrow(Track.DISTANCE);
+                int startTimeIndex = cursor.getColumnIndexOrThrow(Track.START_TIME);
+                int runTimeIndex = cursor.getColumnIndexOrThrow(Track.RUN_TIME);
+                int pointsIndex = cursor.getColumnIndexOrThrow(Track.POINTS);
+
+                do {
+
+                    long _id = cursor.getLong(_idIndex);
+                    int distance = cursor.getInt(distanceIndex);
+                    long startTime = cursor.getLong(startTimeIndex);
+                    long runTime = cursor.getLong(runTimeIndex);
+                    String pointsJson = cursor.getString(pointsIndex);
+
+                    tracks.add(new Track(
+                            _id,
+                            startTime,
+                            runTime,
+                            distance,
+                            JsonConverter.convertJson(pointsJson)
+                    ));
                 } while (cursor.moveToNext());
             }
             cursor.close();
@@ -94,14 +146,16 @@ public class DbCrudHelper {
     }
 
     public static Long insertTrackWithServerId(Track track) {
-        Gson gson = new GsonBuilder().create();
+        Log.e("TAG", "track for insert: " + track);
+        Type listType = new TypeToken<LinkedList<LatLng>>() {
+        }.getType();
 
         String[] args = {
-                String.valueOf(track.getStartTime()),
+                String.valueOf(track.getBeginsAt()),
                 String.valueOf(track.getServerId()),
                 String.valueOf(track.getDistance()),
-                String.valueOf(track.getRunTime()),
-                gson.toJson(track.getPoints())
+                String.valueOf(track.getTime()),
+                new Gson().toJson(track.getPoints())
         };
 
         return insert(
@@ -114,9 +168,9 @@ public class DbCrudHelper {
         Gson gson = new GsonBuilder().create();
 
         String[] args = {
-                String.valueOf(track.getStartTime()),
+                String.valueOf(track.getBeginsAt()),
                 String.valueOf(track.getDistance()),
-                String.valueOf(track.getRunTime()),
+                String.valueOf(track.getTime()),
                 gson.toJson(track.getPoints())
         };
 

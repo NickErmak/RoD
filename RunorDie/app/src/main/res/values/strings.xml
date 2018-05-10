@@ -43,6 +43,9 @@
     <string name="sql_select_tracks">
         SELECT t._id, t.serverId, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime
     </string>
+    <string name="sql_select_tracks_unsync">
+        SELECT t._id, t.startTime, t.runTime, t.distance, t.points FROM track t WHERE t.serverId is null OR t.serverId = \'\'
+    </string>
     <string name="sql_select_tracks_server_id">
         SELECT serverId FROM track
     </string>
@@ -58,9 +61,11 @@
     <string name="sql_insert_track">
         INSERT INTO track (startTime, serverId, distance, runTime, points) VALUES (?, ?, ?, ?, ?)
     </string>
+    <string name="sql_update_track_server_id">UPDATE track SET serverId = ? WHERE _id = ?</string>
     <string name="sql_insert_notification">
        INSERT INTO notification (executionTime, title) VALUES (?, ?)
     </string>
+
 
 
     <string name="sql_update_notification">UPDATE notification SET executionTime = ?, title = ? WHERE _id = ?</string>

@@ -12,7 +12,10 @@ import android.widget.EditText;
 
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.User;
+import com.paranoid.runordie.models.httpResponses.RegisterResponse;
 import com.paranoid.runordie.server.ApiClient;
+import com.paranoid.runordie.server.Callback;
+import com.paranoid.runordie.server.NetworkException;
 import com.paranoid.runordie.server.NetworkProvider;
 import com.paranoid.runordie.server.NetworkProviderTasks;
 import com.paranoid.runordie.server.NetworkUtils;
@@ -89,6 +92,23 @@ public class AuthActivity extends BaseActivity {
 
     private void attemptSignUp() {
         //TODO: check fields for errors
+        User user = new User(
+                mEtEmail.getText().toString(),
+                mEtFirstName.getText().toString(),
+                mEtLastName.getText().toString(),
+                mEtPassword.getText().toString()
+        );
+        ApiClient.getInstance().register(user, new Callback<RegisterResponse>() {
+            @Override
+            public void success(RegisterResponse result) {
+
+            }
+
+            @Override
+            public void failure(NetworkException exception) {
+
+            }
+        });
     }
 
 
@@ -139,7 +159,7 @@ public class AuthActivity extends BaseActivity {
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() >= 4;
     }
 
     @Override

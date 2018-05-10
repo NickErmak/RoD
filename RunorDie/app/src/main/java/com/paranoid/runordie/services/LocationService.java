@@ -21,6 +21,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.activities.SplashActivity;
@@ -144,6 +145,7 @@ public class LocationService extends Service implements LocationListener {
     }
 
     private void saveTrack() {
+
         if (points.size() >= 2) {
             Track track = new Track(
                     startTime,
@@ -151,7 +153,7 @@ public class LocationService extends Service implements LocationListener {
                     DistanceUtils.getDistance(points),
                     points
             );
-            Log.e("TAG", "insert new track in db");
+            Log.d("TAG", "insert new track in db");
             DbCrudHelper.insertTrackNoServerId(track);
         } else {
             Log.e("TAG", "can't save track: too little points");
