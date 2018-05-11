@@ -64,6 +64,7 @@ public class SplashActivity extends BaseActivity {
                     Session activeSession = new Session(user, result.getToken());
                     App.getInstance().getState().setActiveSession(activeSession);
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    finish();
                 }
                 @Override
                 public void failure(NetworkException exception) {

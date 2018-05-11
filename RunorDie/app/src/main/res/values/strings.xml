@@ -34,6 +34,10 @@
 
     <!-- Strings related to Track Fragment -->
     <string name="frag_track_title">Track details</string>
+    <string name="frag_track_map_marker_start">START</string>
+    <string name="frag_track_map_marker_finish">FINISH</string>
+    <string name="frag_track_time_title">Time: </string>
+    <string name="frag_track_distance_title">Distance: </string>
     <string name="format_runTime">%1$d:%2$d:%3$d</string>
 
     <!-- Strings related to Notification Fragment -->

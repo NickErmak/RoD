@@ -1,10 +1,12 @@
 package com.paranoid.runordie.activities;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +17,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.Test;
 import com.paranoid.runordie.fragments.AbstractFragment;
@@ -39,17 +42,19 @@ public class MainActivity extends BaseActivity
         findViewById(R.id.drawer_tv_logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("TAG", "click exit");
+                logout();
             }
         });
 
-        showFragment(HomeFragment.newInstance(), true);
+        if (savedInstanceState == null) {
+            Log.e("TAG", "savedInstance == null");
+            showFragment(HomeFragment.newInstance(), false);
+        }
     }
 
     public void showFragment(
             AbstractFragment frag,
             boolean clearBackStack) {
-        //TODO: mb make without tag?
 
         String tag = frag.getFragTag();
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -61,11 +66,9 @@ public class MainActivity extends BaseActivity
         }
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
+
         transaction.replace(R.id.main_frame_fragContainer, frag, tag);
-       /* if (!tag.equals(App.getInstance().getState().getCurrentFragmentTag())) {
-            transaction.addToBackStack(tag);
-            App.getInstance().getState().setCurrentFragmentTag(tag);
-        }*/
+        transaction.addToBackStack(tag);
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         transaction.commit();
     }
@@ -81,6 +84,15 @@ public class MainActivity extends BaseActivity
         );
         mDrawerLayout.addDrawerListener(mDrawerToggle);
         ((NavigationView) findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
+    }
+
+    private void logout() {
+        Log.d("TAG", "log out");
+        App.getInstance().getState().setActiveSession(null);
+        Intent logoutIntent = new Intent(this, AuthActivity.class);
+        logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(logoutIntent);
+        finish();
     }
 
     @Override
@@ -141,6 +153,10 @@ public class MainActivity extends BaseActivity
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            finish();
             return;
         }
         super.onBackPressed();

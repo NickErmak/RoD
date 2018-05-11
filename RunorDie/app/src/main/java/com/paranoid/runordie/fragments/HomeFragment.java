@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.net.Network;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,18 +26,9 @@ import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.adapters.RecyclerViewCursorAdapter;
 import com.paranoid.runordie.adapters.TrackAdapter;
 import com.paranoid.runordie.helpers.DbCrudHelper;
-import com.paranoid.runordie.models.Track;
-import com.paranoid.runordie.models.httpResponses.TrackResponse;
 import com.paranoid.runordie.providers.SynchronizationProvider;
-import com.paranoid.runordie.server.ApiClient;
-import com.paranoid.runordie.server.Callback;
-import com.paranoid.runordie.server.NetworkException;
-import com.paranoid.runordie.server.NetworkProvider;
 import com.paranoid.runordie.utils.PreferenceUtils;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
-
-import java.util.LinkedList;
-import java.util.List;
 
 import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.ACTION;
 import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.BROADCAST_ACTION;
@@ -68,6 +58,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     private RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private IOnTrackClickEvent mOnTrackClickEvent;
+    private Cursor cursorTracks;
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -181,7 +172,8 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        cursorTracks = data;
+        mAdapter.swapCursor(cursorTracks);
         Log.e("TAG", "swap cursor");
         mSwipeRefreshLayout.setRefreshing(false);
     }

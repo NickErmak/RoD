@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -95,14 +96,13 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         //TODO: fix and add auto camera
 
-
         googleMap.addMarker(new MarkerOptions()
-                .title("Start")
+                .title(getString(R.string.frag_track_map_marker_start))
                 .position(mPoints.get(0))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
         );
         googleMap.addMarker(new MarkerOptions()
-                .title("Finish")
+                .title(getString(R.string.frag_track_map_marker_finish))
                 .position(mPoints.get(mPoints.size() - 1))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
         );
@@ -113,8 +113,6 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
                 .addAll(mPoints)
         );
 
-        // Position the map's camera near Alice Springs in the center of Australia,
-        // and set the zoom factor so most of Australia shows on the screen.
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LatLng point : mPoints) {
             builder.include(point);
@@ -122,11 +120,6 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
         LatLngBounds bounds = builder.build();
         int padding = 50;
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
-
-        // Set listeners for click events.
-        //  googleMap.setOnPolylineClickListener(this);
-        //  googleMap.setOnPolygonClickListener(this);
-
     }
 
     @NonNull
@@ -138,22 +131,19 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         if (data != null) {
-            String pointsJson = null;
             if (data.moveToFirst()) {
-                //TODO: should I redownload runTime and distance from DB?
                 int runTimeColumnIndex = data.getColumnIndex(Track.RUN_TIME);
                 int distanceColumnIndex = data.getColumnIndex(Track.DISTANCE);
                 int pointsColumnIndex = data.getColumnIndex(Track.POINTS);
 
                 long runTime = data.getLong(runTimeColumnIndex);
                 long distance = data.getInt(distanceColumnIndex);
-                pointsJson = data.getString(pointsColumnIndex);
+                String pointsJson = data.getString(pointsColumnIndex);
 
                 mPoints = JsonConverter.convertJson(pointsJson);
                 mTvRunTime.setText(DateConverter.parseTimeToString(runTime));
                 mTvDistance.setText(String.valueOf(distance));
             }
-            data.close();
 
             mMapFragment.getMapAsync(this);
         } else {

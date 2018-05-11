@@ -1,8 +1,8 @@
 package com.paranoid.runordie.activities;
 
 import android.Manifest;
+import android.app.Service;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -19,15 +19,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.helpers.TimerHelper;
 import com.paranoid.runordie.services.LocationService;
 import com.paranoid.runordie.services.LocationService.LocationBinder;
 import com.paranoid.runordie.utils.PermissionUtils;
-import com.paranoid.runordie.utils.TimerUtil;
 
 public class RunActivity extends BaseActivity {
 
-    LocationService mService;
-    private long startTime;
+    private LocationService mService;
+    private long startTime = TimerHelper.START_TIME_FIRST_LAUNCH;
     boolean mBound = false;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -36,11 +36,13 @@ public class RunActivity extends BaseActivity {
             mService = binder.getService();
             if (mService != null) {
                 Log.e("TAG", "service is running");
-                run(mService.getStartTime());
+                Log.e("TAG", "service start time = " + mService.getStartTime());
+                startTime = mService.getStartTime();
+                run();
             } else {
                 Log.e("TAG", "service is null");
             }
-            Log.e("TAG", "service start time = " + mService.getStartTime());
+
             mBound = true;
         }
 
@@ -51,10 +53,10 @@ public class RunActivity extends BaseActivity {
         }
     };
 
-
     private ImageButton mIbStart;
     private TextView mTvTimer;
     private Button mBtnFinish;
+    private TimerHelper timerHelper;
 
     private Handler timerHandler = new Handler();
 
@@ -69,7 +71,7 @@ public class RunActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 stopService(new Intent(getApplicationContext(), LocationService.class));
-                TimerUtil.stopTimer();
+                timerHelper.stopTimer();
                 //TODO: finish for result??
 
                 finish();
@@ -83,26 +85,30 @@ public class RunActivity extends BaseActivity {
                 checkPermission();
             }
         });
+
+        timerHelper = new TimerHelper(mTvTimer, timerHandler, startTime);
     }
 
     private void checkPermission() {
         if (PermissionUtils.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            run(TimerUtil.START_TIME_FIRST_LAUNCH);
+            run();
         } else {
             PermissionUtils.requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
 
-    private void run(long startTime) {
+    private void run() {
         mIbStart.setVisibility(View.GONE);
         mTvTimer.setVisibility(View.VISIBLE);
         mBtnFinish.setVisibility(View.VISIBLE);
-        startTimer(startTime);
+        startTimer();
         startService(new Intent(this, LocationService.class));
     }
 
-    private void startTimer(Long startTime) {
-        this.startTime = TimerUtil.startTimer(mTvTimer, timerHandler, startTime);
+    private void startTimer() {
+        TimerHelper timerHelper = new TimerHelper(mTvTimer, timerHandler, startTime);
+        timerHelper.startTimer();
+        timerHelper.getStartTime();
     }
 
     @Override
@@ -110,7 +116,7 @@ public class RunActivity extends BaseActivity {
         switch (requestCode) {
             case PermissionUtils.MY_PERMISSIONS_REQUEST:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    run(TimerUtil.START_TIME_FIRST_LAUNCH);
+                    run();
                     Log.e("TAG", "getPermissionResult");
                 } else {
                     Toast.makeText(
@@ -129,13 +135,15 @@ public class RunActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, LocationService.class);
-        bindService(intent, mConnection, 0);
+        bindService(intent, mConnection, Service.MODE_PRIVATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mService.setStartTime(startTime);
+        if (mService != null) {
+            mService.setStartTime(startTime);
+        }
         unbindService(mConnection);
         mBound = false;
     }
