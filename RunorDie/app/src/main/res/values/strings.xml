@@ -42,6 +42,7 @@
 
     <!-- Strings related to Notification Fragment -->
     <string name="frag_notification_title">Notifications</string>
+    <string name="notification_title_format">Notification %1$d</string>
 
     <!-- Strings related to SQL requests -->
     <string name="sql_select_tracks">
@@ -81,5 +82,6 @@
     <string name="toast_permission_write_external_not_granted">Access denied</string>
     <string name="frag_notifications_fab_tooltip">Add new notification</string>
     <string name="internet_connection_error">No Internet connection</string>
+
 
 </resources>

@@ -14,12 +14,13 @@ import com.paranoid.runordie.App;
 import com.paranoid.runordie.Test;
 import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.activities.SplashActivity;
+import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.utils.NotificationUtils;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
 
         PowerManager pm = (PowerManager) App.getInstance().getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(
@@ -31,13 +32,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         wl.release();
 
-
-
         Log.e("TAG", "receive alarm");
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Ringtone r = RingtoneManager.getRingtone(App.getInstance(), notification);
         r.play();
-
-        App.getInstance().startActivity(new Intent(App.getInstance(), SplashActivity.class));
     }
 }

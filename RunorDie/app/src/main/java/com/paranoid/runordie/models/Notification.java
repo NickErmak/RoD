@@ -1,5 +1,7 @@
 package com.paranoid.runordie.models;
 
+import com.paranoid.runordie.utils.DateConverter;
+
 public class Notification {
 
     public static final String _ID = "_id";
@@ -42,5 +44,14 @@ public class Notification {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public String toString() {
+        return "Notification{" +
+                "id=" + id +
+                ", executionTime=" + DateConverter.parseTimeToString(executionTime) +
+                ", title='" + title + '\'' +
+                '}';
     }
 }

@@ -18,14 +18,13 @@ import android.view.ViewGroup;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
-import com.paranoid.runordie.Test;
 import com.paranoid.runordie.adapters.NotificationRecyclerAdapter;
+import com.paranoid.runordie.controllers.SwipeController;
 import com.paranoid.runordie.dialogs.MyDatePickerDialog;
 import com.paranoid.runordie.dialogs.MyTimePickerDialog;
 import com.paranoid.runordie.helpers.DbCrudHelper;
-import com.paranoid.runordie.controllers.SwipeController;
 import com.paranoid.runordie.models.Notification;
-import com.paranoid.runordie.utils.DateConverter;
+import com.paranoid.runordie.utils.NotificationUtils;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
 
 import java.util.ArrayList;
@@ -49,8 +48,9 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
     }
 
     public static final String FRAGMENT_TITLE = App.getInstance().getString(R.string.frag_notification_title);
-    public static final String FRAGMENT_TAG = "FRAGMENT_TAG_TRACK";
+    public static final String FRAGMENT_TAG = "FRAGMENT_TAG_NOTIFICATION";
     private static final int LOADER_ID = 1;
+
 
     private NotificationRecyclerAdapter mAdapter;
     private IActivityManager mActivityManager;
@@ -71,6 +71,12 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
         mActivityManager = (IActivityManager) context;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup parent, @Nullable Bundle savedInstanceState) {
@@ -86,7 +92,7 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
             public void onClick(View v) {
                 Notification newNotification = new Notification(
                         Calendar.getInstance().getTimeInMillis(),
-                        "New notification"
+                        String.format(getString(R.string.notification_title_format), (mNotifications.size() + 1))
                 );
                 mNotifications.add(newNotification);
                 int position = mNotifications.size() - 1;
@@ -95,13 +101,19 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
             }
         });
 
-        if (mActivityManager != null) {
-            mActivityManager.showProgress(true);
+
+        if (savedInstanceState == null) {
+            if (mActivityManager != null) {
+                mActivityManager.showProgress(true);
+            }
+            mPositionListForRefresh = new LinkedHashSet<>();
+            mNotifications = new ArrayList<>();
+            mAdapter = new NotificationRecyclerAdapter(this, mNotifications);
+
+            getLoaderManager().initLoader(LOADER_ID, null, this);
         }
 
-        mPositionListForRefresh = new LinkedHashSet<>();
-        mNotifications = new ArrayList<>();
-        mAdapter = new NotificationRecyclerAdapter(this, mNotifications);
+
         RecyclerView recyclerView = view.findViewById(R.id.frag_notification_rv_notifications);
         recyclerView.setLayoutManager(new LinearLayoutManager(
                 App.getInstance(),
@@ -109,12 +121,10 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
                 false
         ));
         recyclerView.setAdapter(mAdapter);
-
         SwipeController swipeController = new SwipeController();
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(recyclerView);
 
-        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     @NonNull
@@ -125,6 +135,7 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+
         if (mActivityManager != null) {
             mActivityManager.showProgress(false);
         }
@@ -144,6 +155,7 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
                 } while (data.moveToNext());
             }
         }
+        getLoaderManager().destroyLoader(LOADER_ID);
     }
 
     @Override
@@ -170,9 +182,6 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
         mPositionListForRefresh.add(position);
 
         mAdapter.notifyItemChanged(position);
-
-        Log.e("TAG", "position = " + position);
-        Log.e("TAG", "time = " + DateConverter.parseDateToString(time));
     }
 
     @Override
@@ -191,25 +200,26 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
     }
 
     private void saveChanges() {
-        for (int pos: mPositionListForRefresh) {
-            Log.e("TAG", "positions:" + mPositionListForRefresh.toString());
+        for (int pos : mPositionListForRefresh) {
             Notification notification = mNotifications.get(pos);
-            if (notification.getId() != null) {
-                updateNotification(notification);
-            } else {
-                createNotification(notification);
+            DbCrudHelper.updateNotification(notification);
+        }
+        mPositionListForRefresh.clear();
+
+        Notification notificationForExecute = null;
+
+        for (Notification notification: mNotifications) {
+            if (notification.getExecutionTime() > Calendar.getInstance().getTimeInMillis()) {
+                if (notificationForExecute == null || notificationForExecute.getExecutionTime() > notification.getExecutionTime()) {
+                    notificationForExecute = notification;
+                }
             }
         }
-    }
 
-    private void updateNotification(Notification notification) {
-        Log.d("TAG", "update notification. Title = " + notification.getTitle());
-        DbCrudHelper.updateNotification(notification);
-    }
-
-    private void createNotification(Notification notification) {
-        Log.d("TAG", "insert notification. Title = " + notification.getTitle());
-        DbCrudHelper.insertNotification(notification);
-        Test.createAlarmNotification(notification.getExecutionTime(), notification.getTitle());
+        Log.e("TAG", "exec note = " + notificationForExecute);
+        if (notificationForExecute != null
+                && notificationForExecute.getExecutionTime() > Calendar.getInstance().getTimeInMillis()) {
+            NotificationUtils.createAlarmNotification(notificationForExecute);
+        }
     }
 }

@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.AuthActivity" android:windowSoftInputMode="stateHidden"/>
-        <activity android:name=".activities.MainActivity" />
+        <activity android:name=".activities.MainActivity" android:windowSoftInputMode="stateHidden"/>
         <service android:name=".services.LocationService"
             android:exported="false"/>
         <receiver android:name=".receivers.AlarmReceiver"/>

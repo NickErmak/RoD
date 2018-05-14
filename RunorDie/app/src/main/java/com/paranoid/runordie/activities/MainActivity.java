@@ -47,7 +47,6 @@ public class MainActivity extends BaseActivity
         });
 
         if (savedInstanceState == null) {
-            Log.e("TAG", "savedInstance == null");
             showFragment(HomeFragment.newInstance(), false);
         }
     }
@@ -56,6 +55,7 @@ public class MainActivity extends BaseActivity
             AbstractFragment frag,
             boolean clearBackStack) {
 
+        Log.d("TAG", "showing fragment:  " + frag.getFragTag());
         String tag = frag.getFragTag();
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (clearBackStack) {
@@ -97,12 +97,10 @@ public class MainActivity extends BaseActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Log.e("TAG", "id = " + item.getItemId());
 
         AbstractFragment frag = null;
         boolean clearBackStack = false;
         FragmentManager fragManager = getSupportFragmentManager();
-
 
         switch (item.getItemId()) {
             case R.id.nav_notifications:
@@ -113,7 +111,7 @@ public class MainActivity extends BaseActivity
                 }
                 break;
             case R.id.nav_main:
-                clearBackStack = true;
+                clearBackStack = false;
                 frag = (AbstractFragment) fragManager.findFragmentByTag(HomeFragment.FRAGMENT_TAG);
                 if (frag == null) {
                     frag = HomeFragment.newInstance();

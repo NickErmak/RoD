@@ -58,7 +58,6 @@ public class MyTimePickerDialog extends DialogFragment implements TimePickerDial
     @Override
     public void onTimeSet(TimePicker view, int newHour, int newMinute) {
         if ((newHour != mHour) || (newMinute != mMinute)) {
-            Log.e("TAG", "old time = " + DateConverter.parseDateToString(mExecTime));
             long newTime = mExecTime + (60 * (newHour - mHour) + (newMinute - mMinute)) * 60 * 1000;
             IConfigNotification configExecTime = (IConfigNotification) getParentFragment();
             configExecTime.onTimeChanged(mPosition, newTime);
