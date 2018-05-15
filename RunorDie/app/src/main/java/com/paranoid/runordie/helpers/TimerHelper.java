@@ -1,9 +1,12 @@
 package com.paranoid.runordie.helpers;
 
 import android.os.Handler;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.paranoid.runordie.utils.DateConverter;
+
+import java.util.Calendar;
 
 public class TimerHelper {
 

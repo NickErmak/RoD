@@ -35,7 +35,7 @@ public class NotificationUtils {
         Calendar calendar = Calendar.getInstance();
         Calendar calTest = Calendar.getInstance();
         calTest.setTimeInMillis(execTime - calendar.getTimeInMillis());
-        Log.e("TAG", "execution time in " + calTest.get(Calendar.MINUTE) + "min, " + calTest.get(Calendar.SECOND) + "sec");
+        Log.e("TAG", "execution time in_from_left " + calTest.get(Calendar.MINUTE) + "min, " + calTest.get(Calendar.SECOND) + "sec");
         Log.e("TAG", "time ms = "+ (execTime - calendar.getTimeInMillis()));
 
         int currentApiVersion = Build.VERSION.SDK_INT;

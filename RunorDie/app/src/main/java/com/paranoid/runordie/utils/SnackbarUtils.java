@@ -4,6 +4,7 @@ import android.support.design.widget.Snackbar;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
+import com.paranoid.runordie.server.NetworkException;
 
 public class SnackbarUtils {
 
@@ -17,5 +18,18 @@ public class SnackbarUtils {
                 msg,
                 Snackbar.LENGTH_LONG
         ).show();
+    }
+
+    public static void showSnackbar(NetworkException exception) {
+        int errorMsgId;
+        switch (exception.getErrorCode()) {
+            case "INVALID_CREDENTIALS":
+                errorMsgId = R.string.invalid_credentials_error;
+                break;
+            default:
+                errorMsgId = R.string.default_error;
+                break;
+        }
+        showSnackbar(errorMsgId);
     }
 }

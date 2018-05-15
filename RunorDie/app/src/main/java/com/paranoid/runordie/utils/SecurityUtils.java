@@ -11,6 +11,6 @@ public class SecurityUtils {
     }
 
     public static String decode(String src) {
-        return new String (Base64.decode(src, FLAGS));
+        return (src != null) ? new String(Base64.decode(src, FLAGS)) : null;
     }
 }

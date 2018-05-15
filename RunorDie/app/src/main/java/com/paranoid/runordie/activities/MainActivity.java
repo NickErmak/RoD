@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void logout() {
-        Log.d("TAG", "log out");
+        Log.d("TAG", "log out_to_right");
         App.getInstance().getState().setActiveSession(null);
         Intent logoutIntent = new Intent(this, AuthActivity.class);
         logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

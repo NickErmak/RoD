@@ -137,7 +137,7 @@ public class DbCrudHelper {
         return notifications;
     }
 
-    //TODO: why I convert type from long to String and then paste in DB again int
+    //TODO: why I convert type from long to String and then paste in_from_left DB again int
     public static Cursor getTrack(long trackId) {
         return App.getInstance().getDb().rawQuery(
                 App.getInstance().getString(R.string.sql_select_track),

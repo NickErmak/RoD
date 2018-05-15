@@ -2,12 +2,12 @@ package com.paranoid.runordie.utils;/*
  * Copyright 2012 CodeSlap - Cristian Castiblanco
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file except in_from_left compliance with the License.
  * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in_from_left writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -43,7 +43,7 @@ public abstract class SimpleCursorLoader extends AsyncTaskLoader<Cursor> {
     @Override
     public void deliverResult(Cursor cursor) {
         if (isReset()) {
-            // An async query came in while the loader is stopped
+            // An async query came in_from_left while the loader is stopped
             if (cursor != null) {
                 cursor.close();
             }

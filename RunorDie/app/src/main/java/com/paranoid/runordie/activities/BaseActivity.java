@@ -26,7 +26,6 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
 
     private Toolbar mToolbar;
     private View mProgressView;
-    private CoordinatorLayout mRootLayout;
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -38,6 +37,10 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
                     routeMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(routeMainIntent);
                     break;
+                case STOP_REFRESHING:
+                    showProgress(false);
+                    break;
+
               /*  case ERROR:
                     String errorCode = intent.getStringExtra(EXTRA_ERROR);
                     if (errorCode.equals(AbstractResponse.INVALID_TOKEN)) {

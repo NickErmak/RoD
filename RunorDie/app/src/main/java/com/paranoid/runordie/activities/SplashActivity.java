@@ -17,12 +17,11 @@ import com.paranoid.runordie.server.ApiClient;
 import com.paranoid.runordie.server.Callback;
 import com.paranoid.runordie.server.NetworkException;
 import com.paranoid.runordie.utils.AnimationUtils;
-import com.paranoid.runordie.utils.ConnectionUtils;
 import com.paranoid.runordie.utils.SnackbarUtils;
 
 public class SplashActivity extends BaseActivity {
 
-    private AnimatorListenerAdapter endListener = new AnimatorListenerAdapter() {
+    private AnimatorListenerAdapter animFinishListener = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationEnd(Animator animation) {
             super.onAnimationEnd(animation);
@@ -38,12 +37,12 @@ public class SplashActivity extends BaseActivity {
         setActionBarTitle(R.string.splash_title);
         AnimationUtils.setLogoAnimation(
                 findViewById(R.id.splash_logo),
-                endListener
+                animFinishListener
         );
     }
 
     private void route() {
-        User user = PreferenceHelper.loadUserData();
+        User user = PreferenceHelper.loadUser();
         if (user == null) {
             routeToAuth();
         } else {
@@ -53,27 +52,26 @@ public class SplashActivity extends BaseActivity {
 
     private void routeToAuth() {
         startActivity(new Intent(this, AuthActivity.class));
+        finish();
     }
 
     private void routeToMain(final User user) {
-        if (ConnectionUtils.checkInternetConnection()) {
-            ApiClient.getInstance().login(user, new Callback<LoginResponse>() {
-                @Override
-                public void success(LoginResponse result) {
-                    Log.d("TAG", "success login");
-                    Session activeSession = new Session(user, result.getToken());
-                    App.getInstance().getState().setActiveSession(activeSession);
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    finish();
-                }
-                @Override
-                public void failure(NetworkException exception) {
-                    routeToAuth();
-                }
-            });
-        } else {
-            SnackbarUtils.showSnackbar(R.string.internet_connection_error);
-        }
+        ApiClient.getInstance().login(user, new Callback<LoginResponse>() {
+            @Override
+            public void success(LoginResponse result) {
+                Log.d("TAG", "success login");
+                Session activeSession = new Session(user, result.getToken());
+                App.getInstance().getState().setActiveSession(activeSession);
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                finish();
+            }
+
+            @Override
+            public void failure(NetworkException exception) {
+                SnackbarUtils.showSnackbar(exception.getErrorCode());
+                routeToAuth();
+            }
+        });
     }
 
     @Override

@@ -5,5 +5,8 @@
     <color name="app_accent">#004c40</color>
     <color name="app_secondary">#ffff00</color>
 
+    <color name="auth_active_btn_background">#00796b</color>
+    <color name="auth_unactive_btn_background">#90a4ae</color>
+
     <color name="refresh">#EA80FC</color>
 </resources>

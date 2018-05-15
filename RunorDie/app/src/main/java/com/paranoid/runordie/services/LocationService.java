@@ -63,6 +63,10 @@ public class LocationService extends Service implements LocationListener {
         return startTime;
     }
 
+    public int getDistance() {
+        return DistanceUtils.getDistance(points);
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -153,7 +157,7 @@ public class LocationService extends Service implements LocationListener {
                     DistanceUtils.getDistance(points),
                     points
             );
-            Log.d("TAG", "insert new track in db");
+            Log.d("TAG", "insert new track in_from_left db");
             DbCrudHelper.insertTrackNoServerId(track);
         } else {
             Log.e("TAG", "can't save track: too little points");

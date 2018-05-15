@@ -13,7 +13,7 @@ public class AppBroadcast {
     public static final String EXTRA_ACTION = "EXTRA_ACTION";
     public static final String EXTRA_ERROR = "EXTRA_ERROR";
 
-    public enum ACTION {SUCCESS_LOGIN, FAIL_LOGIN}
+    public enum ACTION {SUCCESS_LOGIN, FAIL_LOGIN, STOP_REFRESHING}
 
     //public enum ERROR_CODE {INVALID_TOKEN}
 

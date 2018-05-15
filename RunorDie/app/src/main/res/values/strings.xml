@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Run or Die</string>
 
+    <!-- Strings related to Splash Screen -->
+    <string name="splash_title">Run or Die</string>
+    <string name="frag_home_title">Tracks</string>
+
     <!-- Strings related to Authorization Screen -->
     <string name="auth_title">Authorization</string>
     <string name="auth_et_email_hint">Email</string>
@@ -15,22 +19,19 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
 
+    <!-- Strings related to Home Screen -->
+    <string name="frag_home_fab_tooltip">Start new Track</string>
+
+    <!-- Strings related to Run Screen -->
+    <string name="run_title">Run or Die</string>
+    <string name="distance_format">%1$d m</string>
+
     <!-- Strings related to Drawer -->
     <string name="drawer_open">open</string>
     <string name="drawer_close">close</string>
     <string name="nav_view_main_title">Main</string>
     <string name="nav_view_notifications_title">Notifications</string>
     <string name="nav_view_footer_exit_title">Exit</string>
-
-    <!-- Strings related to Splash Screen -->
-    <string name="splash_title">Run or Die</string>
-    <string name="frag_home_title">Tracks</string>
-
-    <!-- Strings related to Home Screen -->
-    <string name="frag_home_fab_tooltip">Start new Track</string>
-
-    <!-- Strings related to Run Screen -->
-    <string name="run_title">Run or Die</string>
 
     <!-- Strings related to Track Fragment -->
     <string name="frag_track_title">Track details</string>
@@ -43,6 +44,7 @@
     <!-- Strings related to Notification Fragment -->
     <string name="frag_notification_title">Notifications</string>
     <string name="notification_title_format">Notification %1$d</string>
+    <string name="frag_notifications_fab_tooltip">Add new notification</string>
 
     <!-- Strings related to SQL requests -->
     <string name="sql_select_tracks">
@@ -70,18 +72,18 @@
     <string name="sql_insert_notification">
        INSERT INTO notification (executionTime, title) VALUES (?, ?)
     </string>
-
-
-
     <string name="sql_update_notification">UPDATE notification SET executionTime = ?, title = ? WHERE _id = ?</string>
+
+    <!-- Strings related to Exceptions -->
+    <string name="default_error">Something went wrong!</string>
+    <string name="invalid_credentials_error">Incorrect email or password!</string>
+    <string name="internet_connection_error">No Internet connection</string>
+    <string name="permission_write_external_not_granted">Access denied</string>
 
 
 
 
     <string name="yes">yes</string>
-    <string name="toast_permission_write_external_not_granted">Access denied</string>
-    <string name="frag_notifications_fab_tooltip">Add new notification</string>
-    <string name="internet_connection_error">No Internet connection</string>
 
 
 </resources>

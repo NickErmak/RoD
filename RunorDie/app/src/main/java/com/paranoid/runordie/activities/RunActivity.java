@@ -11,23 +11,26 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.helpers.TimerHelper;
 import com.paranoid.runordie.services.LocationService;
 import com.paranoid.runordie.services.LocationService.LocationBinder;
+import com.paranoid.runordie.utils.DateConverter;
 import com.paranoid.runordie.utils.PermissionUtils;
+import com.paranoid.runordie.utils.SnackbarUtils;
 
 public class RunActivity extends BaseActivity {
 
     private LocationService mService;
-    private long startTime = TimerHelper.START_TIME_FIRST_LAUNCH;
     boolean mBound = false;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -37,8 +40,7 @@ public class RunActivity extends BaseActivity {
             if (mService != null) {
                 Log.e("TAG", "service is running");
                 Log.e("TAG", "service start time = " + mService.getStartTime());
-                startTime = mService.getStartTime();
-                run();
+               // run();
             } else {
                 Log.e("TAG", "service is null");
             }
@@ -54,8 +56,14 @@ public class RunActivity extends BaseActivity {
     };
 
     private ImageButton mIbStart;
+
     private TextView mTvTimer;
     private Button mBtnFinish;
+
+    private TextView tvTimerResult;
+    private TextView tvDistanceResult;
+
+
     private TimerHelper timerHelper;
 
     private Handler timerHandler = new Handler();
@@ -66,15 +74,28 @@ public class RunActivity extends BaseActivity {
         setContentView(R.layout.activity_run);
         setActionBarTitle(R.string.run_title);
 
+        tvTimerResult = (TextView) findViewById(R.id.run_tv_timer_result);
+        tvDistanceResult = (TextView) findViewById(R.id.run_tv_distance_result);
+
+
+        final ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.run_viewFlipper);
+        viewFlipper.setInAnimation(getApplicationContext(), R.anim.in_from_left);
+        viewFlipper.setOutAnimation(getApplicationContext(), R.anim.out_to_right);
+
         mBtnFinish = findViewById(R.id.run_btn_finish);
         mBtnFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopService(new Intent(getApplicationContext(), LocationService.class));
                 timerHelper.stopTimer();
+                long s =  timerHelper.getStartTime();
+                tvTimerResult.setText(DateConverter.getTimerTime(s));
+                tvDistanceResult.setText(String.format(
+                        getString(R.string.distance_format),
+                        mService.getDistance()
+                ));
+                viewFlipper.showNext();
                 //TODO: finish for result??
-
-                finish();
             }
         });
         mTvTimer = findViewById(R.id.run_tv_timer);
@@ -82,10 +103,13 @@ public class RunActivity extends BaseActivity {
         mIbStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                viewFlipper.showNext();
                 checkPermission();
             }
         });
 
+        long startTime = (mService != null) ? mService.getStartTime() : TimerHelper.START_TIME_FIRST_LAUNCH;
         timerHelper = new TimerHelper(mTvTimer, timerHandler, startTime);
     }
 
@@ -98,17 +122,11 @@ public class RunActivity extends BaseActivity {
     }
 
     private void run() {
-        mIbStart.setVisibility(View.GONE);
+       // mIbStart.setVisibility(View.GONE);
         mTvTimer.setVisibility(View.VISIBLE);
         mBtnFinish.setVisibility(View.VISIBLE);
-        startTimer();
         startService(new Intent(this, LocationService.class));
-    }
-
-    private void startTimer() {
-        TimerHelper timerHelper = new TimerHelper(mTvTimer, timerHandler, startTime);
         timerHelper.startTimer();
-        timerHelper.getStartTime();
     }
 
     @Override
@@ -119,11 +137,7 @@ public class RunActivity extends BaseActivity {
                     run();
                     Log.e("TAG", "getPermissionResult");
                 } else {
-                    Toast.makeText(
-                            this,
-                            R.string.toast_permission_write_external_not_granted,
-                            Toast.LENGTH_SHORT
-                    ).show();
+                    SnackbarUtils.showSnackbar(R.string.permission_write_external_not_granted);
                 }
                 break;
             default:
@@ -142,7 +156,7 @@ public class RunActivity extends BaseActivity {
     protected void onStop() {
         super.onStop();
         if (mService != null) {
-            mService.setStartTime(startTime);
+            mService.setStartTime(timerHelper.getStartTime());
         }
         unbindService(mConnection);
         mBound = false;

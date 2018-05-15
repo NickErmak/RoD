@@ -4,5 +4,8 @@
 
     <dimen name="nav_drawer_width">240dp</dimen>
     <dimen name="drawer_padding">16dp</dimen>
+
     <dimen name="actionBarSize">60dp</dimen>
+
+    <dimen name="auth_btn_width">100dp</dimen>
 </resources>

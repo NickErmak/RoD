@@ -26,6 +26,7 @@ import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.adapters.RecyclerViewCursorAdapter;
 import com.paranoid.runordie.adapters.TrackAdapter;
 import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.helpers.PreferenceHelper;
 import com.paranoid.runordie.providers.SynchronizationProvider;
 import com.paranoid.runordie.utils.PreferenceUtils;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
@@ -115,7 +116,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         setAdapter((RecyclerView) view.findViewById(R.id.frag_home_rv_tracks));
         setSwipeRefresh((SwipeRefreshLayout) view.findViewById(R.id.home_swipe_refresh));
 
-        if (!PreferenceUtils.isFirstLaunch()) {
+        if (!PreferenceHelper.isFirstLaunch()) {
             loadTracksFromDB();
         }
         refreshPosts();

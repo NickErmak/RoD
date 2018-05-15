@@ -4,6 +4,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.view.View;
+import android.widget.ImageButton;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;

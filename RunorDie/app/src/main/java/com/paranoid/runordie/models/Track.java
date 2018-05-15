@@ -18,7 +18,7 @@ public class Track {
     public static final String POINTS = "points";
 
     //don't use simple types because of retrofit requests:
-    // in this case null values won't be send to server
+    // in_from_left this case null values won't be send to server
 
     private Long _id;   //DB id
     private Long id;    // Server id
