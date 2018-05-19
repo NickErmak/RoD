@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.paranoid.runordie">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".App"
@@ -22,11 +22,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.AuthActivity" android:windowSoftInputMode="stateHidden"/>
-        <activity android:name=".activities.MainActivity" android:windowSoftInputMode="stateHidden"/>
-        <service android:name=".services.LocationService"
-            android:exported="false"/>
-        <receiver android:name=".receivers.AlarmReceiver"/>
+
+        <activity
+            android:name=".activities.AuthActivity"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".activities.RunActivity"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+
+        <service
+            android:name=".services.LocationService"
+            android:exported="false" />
+        <receiver android:name=".receivers.AlarmReceiver" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -34,8 +48,6 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <activity android:name=".activities.RunActivity"/>
     </application>
 
 </manifest>

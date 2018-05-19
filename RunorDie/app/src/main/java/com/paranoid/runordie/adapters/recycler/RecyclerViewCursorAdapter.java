@@ -1,4 +1,4 @@
-package com.paranoid.runordie.adapters;
+package com.paranoid.runordie.adapters.recycler;
 
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHolder> extends
         RecyclerView.Adapter<VH> {
 
-    private Cursor mCursor;
-    private boolean mDataValid;
-    private int mRowIDColumn;
+    private Cursor cursor;
+    private boolean dataValid;
+    private int rowIDColumn;
 
     public RecyclerViewCursorAdapter(Cursor cursor) {
         setHasStableIds(true);
@@ -23,34 +23,34 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
-        if (!mDataValid) {
+        if (!dataValid) {
             throw new IllegalStateException("this should only be called when the cursor is valid");
         }
-        if (!mCursor.moveToPosition(position)) {
+        if (!cursor.moveToPosition(position)) {
             throw new IllegalStateException("couldn't move cursor to position " + position);
         }
-        onBindViewHolder(holder, mCursor);
+        onBindViewHolder(holder, cursor);
     }
 
     @Override
     public long getItemId(int position) {
-        if (mDataValid && mCursor != null && mCursor.moveToPosition(position)) {
-            return mCursor.getLong(mRowIDColumn);
+        if (dataValid && cursor != null && cursor.moveToPosition(position)) {
+            return cursor.getLong(rowIDColumn);
         }
         return RecyclerView.NO_ID;
     }
 
     @Override
     public int getItemCount() {
-        if (mDataValid && mCursor != null) {
-            return mCursor.getCount();
+        if (dataValid && cursor != null) {
+            return cursor.getCount();
         } else {
             return 0;
         }
     }
 
     protected Cursor getCursor() {
-        return mCursor;
+        return cursor;
     }
 
     public void changeCursor(Cursor cursor) {
@@ -61,26 +61,26 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
     }
 
     public Cursor swapCursor(Cursor newCursor) {
-        if (newCursor == mCursor) {
+        if (newCursor == cursor) {
             return null;
         }
-        Cursor oldCursor = mCursor;
+        Cursor oldCursor = cursor;
         if (oldCursor != null) {
             if (mDataSetObserver != null) {
                 oldCursor.unregisterDataSetObserver(mDataSetObserver);
             }
         }
-        mCursor = newCursor;
+        cursor = newCursor;
         if (newCursor != null) {
             if (mDataSetObserver != null) {
                 newCursor.registerDataSetObserver(mDataSetObserver);
             }
-            mRowIDColumn = newCursor.getColumnIndexOrThrow("_id");
-            mDataValid = true;
+            rowIDColumn = newCursor.getColumnIndexOrThrow("_id");
+            dataValid = true;
             notifyDataSetChanged();
         } else {
-            mRowIDColumn = -1;
-            mDataValid = false;
+            rowIDColumn = -1;
+            dataValid = false;
             notifyDataSetChanged();
         }
         return oldCursor;
@@ -90,13 +90,13 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
 
         @Override
         public void onChanged() {
-            mDataValid = true;
+            dataValid = true;
             notifyDataSetChanged();
         }
 
         @Override
         public void onInvalidated() {
-            mDataValid = false;
+            dataValid = false;
             notifyDataSetChanged();
         }
     };

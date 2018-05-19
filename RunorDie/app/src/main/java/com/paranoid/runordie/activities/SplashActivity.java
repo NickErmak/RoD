@@ -20,7 +20,13 @@ import com.paranoid.runordie.utils.AnimationUtils;
 import com.paranoid.runordie.utils.SnackbarUtils;
 
 public class SplashActivity extends BaseActivity {
+    public enum ROUTE {
+        RUN_ACTIVITY
+    }
 
+    public static String ROUTE_KEY = "ROUTE_KEY";
+
+    private ROUTE routeActivity;
     private AnimatorListenerAdapter animFinishListener = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationEnd(Animator animation) {
@@ -34,11 +40,22 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        setActionBarTitle(R.string.splash_title);
+        setupActionBar();
+
+        Bundle extras = getIntent().getExtras();
+        routeActivity = (extras != null) ? (ROUTE) extras.getSerializable(ROUTE_KEY) : null;
+
         AnimationUtils.setLogoAnimation(
                 findViewById(R.id.splash_logo),
                 animFinishListener
         );
+    }
+
+    private void setupActionBar() {
+        setActionBarTitle(R.string.splash_title);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
     }
 
     private void route() {
@@ -62,13 +79,22 @@ public class SplashActivity extends BaseActivity {
                 Log.d("TAG", "success login");
                 Session activeSession = new Session(user, result.getToken());
                 App.getInstance().getState().setActiveSession(activeSession);
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+
+                if (routeActivity != null) {
+                    switch (routeActivity) {
+                        case RUN_ACTIVITY:
+                            startActivity(new Intent(getApplicationContext(), RunActivity.class));
+                            break;
+                    }
+                } else {
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                }
                 finish();
             }
 
             @Override
             public void failure(NetworkException exception) {
-                SnackbarUtils.showSnackbar(exception.getErrorCode());
+                SnackbarUtils.showSnack(exception.getErrorCode());
                 routeToAuth();
             }
         });

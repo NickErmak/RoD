@@ -1,8 +1,10 @@
 package com.paranoid.runordie.models;
 
-import com.paranoid.runordie.utils.DateConverter;
-
 public class Notification {
+
+    public enum CRUD_STATUS{
+        NONE, INSERT, UPDATE
+    }
 
     public static final String _ID = "_id";
     public static final String EXEC_TIME = "executionTime";
@@ -11,6 +13,7 @@ public class Notification {
     private Long id;
     private long executionTime;
     private String title;
+    private CRUD_STATUS crudStatus;
 
     public Notification(long executionTime, String title) {
         this(null, executionTime, title);
@@ -20,6 +23,7 @@ public class Notification {
         this.id = id;
         this.executionTime = executionTime;
         this.title = title;
+        crudStatus = CRUD_STATUS.NONE;
     }
 
     public Long getId() {
@@ -46,12 +50,11 @@ public class Notification {
         this.title = title;
     }
 
-    @Override
-    public String toString() {
-        return "Notification{" +
-                "id=" + id +
-                ", executionTime=" + DateConverter.parseTimeToString(executionTime) +
-                ", title='" + title + '\'' +
-                '}';
+    public CRUD_STATUS getCrudStatus() {
+        return crudStatus;
+    }
+
+    public void setCrudStatus(CRUD_STATUS crudStatus) {
+        this.crudStatus = crudStatus;
     }
 }

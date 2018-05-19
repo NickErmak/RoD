@@ -1,32 +1,41 @@
 package com.paranoid.runordie;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.paranoid.runordie.helpers.DbOpenHelper;
 import com.paranoid.runordie.models.State;
 import com.paranoid.runordie.receivers.ConnectionChangeReceiver;
-import com.paranoid.runordie.utils.PreferenceUtils;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
 public class App extends Application {
 
     private static final String VACUUM_COMMAND = "VACUUM";
-
     private static App instance;
-    private State mState;
-    private SQLiteDatabase mDB;
+
+    public static RefWatcher getRefWatcher(Context context) {
+        App application = (App) context.getApplicationContext();
+        return application.refWatcher;
+    }
+
+    private State state;
+    private SQLiteDatabase db;
+
+    private RefWatcher refWatcher;
 
     public static App getInstance() {
         return instance;
     }
 
     public State getState() {
-        return mState;
+        return state;
     }
 
     public SQLiteDatabase getDb() {
-        return mDB;
+        return db;
     }
 
     @Override
@@ -34,12 +43,17 @@ public class App extends Application {
         super.onCreate();
 
         instance = this;
-        mState = new State();
+        state = new State();
 
-        mDB = new DbOpenHelper(this).getWritableDatabase();
-        mDB.execSQL(VACUUM_COMMAND);
+        db = new DbOpenHelper(this).getWritableDatabase();
+        db.execSQL(VACUUM_COMMAND);
 
         registerReceivers();
+
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return;
+        }
+        refWatcher = LeakCanary.install(this);
     }
 
     private void registerReceivers() {

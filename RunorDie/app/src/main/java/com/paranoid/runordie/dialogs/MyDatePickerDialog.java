@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
 
-import com.paranoid.runordie.adapters.NotificationRecyclerAdapter.IConfigNotification;
+import com.paranoid.runordie.adapters.recycler.NotificationRecyclerAdapter.IConfigNotification;
 
 import java.util.Calendar;
 

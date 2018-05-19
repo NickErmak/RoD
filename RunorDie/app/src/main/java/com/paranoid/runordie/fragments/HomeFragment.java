@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -23,17 +24,13 @@ import android.view.ViewGroup;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.activities.RunActivity;
-import com.paranoid.runordie.adapters.RecyclerViewCursorAdapter;
-import com.paranoid.runordie.adapters.TrackAdapter;
+import com.paranoid.runordie.adapters.recycler.RecyclerViewCursorAdapter;
+import com.paranoid.runordie.adapters.recycler.TrackRecyclerCursorAdapter;
 import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.helpers.PreferenceHelper;
 import com.paranoid.runordie.providers.SynchronizationProvider;
-import com.paranoid.runordie.utils.PreferenceUtils;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
-
-import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.ACTION;
-import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.BROADCAST_ACTION;
-import static com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast.EXTRA_ACTION;
+import com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast;
 
 public class HomeFragment extends AbstractFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -52,36 +49,25 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         }
     }
 
-    public static final String FRAGMENT_TITLE = App.getInstance().getString(R.string.frag_home_title);
     public static final String FRAGMENT_TAG = "FRAGMENT_TAG_HOME";
+    private static final String FRAGMENT_TTILE = App.getInstance().getString(R.string.frag_home_title);
+    private static String RECYCLER_STATE_KEY = "RECYCLER_STATE_KEY";
     private static final int LOADER_ID = 0;
 
-    private RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> mAdapter;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private IOnTrackClickEvent mOnTrackClickEvent;
-    private Cursor cursorTracks;
+    private RecyclerViewCursorAdapter<TrackRecyclerCursorAdapter.TrackViewHolder> adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recyclerView;
+    private IOnTrackClickEvent onTrackClickEvent;
+
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("TAG", "broadcast received (home frag)");
-            ACTION action = (ACTION) intent.getSerializableExtra(EXTRA_ACTION);
+            HomeBroadcast.ACTION action = (HomeBroadcast.ACTION) intent.getSerializableExtra(HomeBroadcast.EXTRA_ACTION);
             switch (action) {
-              /*  case ERROR:
-                    String errorCode = intent.getStringExtra(EXTRA_ERROR);
-                    if (errorCode.equals(AbstractResponse.INVALID_TOKEN)) {
-                        //TODO: snack
-                        Toast.makeText(getApplicationContext(), "Authorization error", Toast.LENGTH_LONG).show();
-
-                        Intent intent2 = new Intent(getApplicationContext(), AuthActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent2);
-                        finish();
-                    }
-
-                    Log.e("TAG", "error_code: " + errorCode);
-                    break;*/
-                case TRACKS_REFRESHED:
+                case SYNCHRONIZATION_SUCCESS:
+                    Log.d("TAG", "Broadcast (home fragment): synchronization success");
                     App.getInstance().getState().setServerSyncRunning(false);
+                    swipeRefreshLayout.setRefreshing(false);
                     loadTracksFromDB();
                     break;
             }
@@ -89,7 +75,11 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     };
 
     public HomeFragment() {
-        super(FRAGMENT_TITLE, FRAGMENT_TAG);
+        super(
+                FRAGMENT_TTILE,
+                FRAGMENT_TAG,
+                R.id.frag_home_root_layout
+        );
     }
 
     public static HomeFragment newInstance() {
@@ -99,7 +89,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mOnTrackClickEvent = (IOnTrackClickEvent) context;
+        onTrackClickEvent = (IOnTrackClickEvent) context;
     }
 
     @Nullable
@@ -112,14 +102,53 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        setFab((FloatingActionButton) view.findViewById(R.id.frag_home_fab));
-        setAdapter((RecyclerView) view.findViewById(R.id.frag_home_rv_tracks));
-        setSwipeRefresh((SwipeRefreshLayout) view.findViewById(R.id.home_swipe_refresh));
+        recyclerView = (RecyclerView) view.findViewById(R.id.frag_home_rv_tracks);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.home_swipe_refresh);
+        adapter = new TrackRecyclerCursorAdapter(null, onTrackClickEvent);
 
-        if (!PreferenceHelper.isFirstLaunch()) {
+        setFab((FloatingActionButton) view.findViewById(R.id.frag_home_fab));
+        setRecycler(recyclerView, savedInstanceState);
+        setSwipeRefresh(swipeRefreshLayout);
+
+        if (PreferenceHelper.isFirstLaunch()) {
             loadTracksFromDB();
         }
-        refreshPosts();
+
+        if (App.getInstance().getState().isServerSyncRunning() ||
+                App.getInstance().getState().isHomeTracksLoading()) {
+            showProgress(true);
+        } else {
+            refreshPosts();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
+                receiver,
+                new IntentFilter(HomeBroadcast.BROADCAST_ACTION)
+        );
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onTrackClickEvent = null;
+        adapter = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        Parcelable recyclerState = recyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(RECYCLER_STATE_KEY, recyclerState);
+        super.onSaveInstanceState(outState);
     }
 
     private void setFab(FloatingActionButton fab) {
@@ -131,10 +160,9 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         });
     }
 
-    private void setSwipeRefresh(SwipeRefreshLayout swipeRefresh) {
-        mSwipeRefreshLayout = swipeRefresh;
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.app_accent, R.color.app_primary_dark, R.color.refresh);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+    private void setSwipeRefresh(final SwipeRefreshLayout swipeRefresh) {
+        swipeRefresh.setColorSchemeResources(R.color.app_accent, R.color.app_primary_dark, R.color.refresh);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 refreshPosts();
@@ -142,13 +170,18 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         });
     }
 
-    private void setAdapter(RecyclerView recyclerView) {
-        mAdapter = new TrackAdapter(null, mOnTrackClickEvent);
+    private void setRecycler(RecyclerView recyclerView, Bundle savedInstanceState) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(mAdapter);
+        recyclerView.setAdapter(adapter);
+        if (savedInstanceState != null) {
+            Parcelable recyclerState = savedInstanceState.getParcelable(RECYCLER_STATE_KEY);
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
+        }
     }
 
     private void loadTracksFromDB() {
+        Log.d("TAG", "loading tracks from DB..");
+        showProgress(true);
         LoaderManager lm = getLoaderManager();
         if (lm.getLoader(LOADER_ID) == null) {
             lm.initLoader(LOADER_ID, null, this);
@@ -160,7 +193,6 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     private void refreshPosts() {
         if (!App.getInstance().getState().isServerSyncRunning()) {
             App.getInstance().getState().setServerSyncRunning(true);
-            mSwipeRefreshLayout.setRefreshing(true);
             SynchronizationProvider.synchronize();
         }
     }
@@ -173,29 +205,14 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        cursorTracks = data;
-        mAdapter.swapCursor(cursorTracks);
-        Log.e("TAG", "swap cursor");
-        mSwipeRefreshLayout.setRefreshing(false);
+        Log.d("TAG", "loading tracks from DB: SUCCESS");
+        adapter.swapCursor(data);
+        App.getInstance().getState().setHomeTracksLoading(false);
+        showProgress(false);
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
-                receiver,
-                new IntentFilter(BROADCAST_ACTION)
-        );
+        adapter.swapCursor(null);
     }
 }

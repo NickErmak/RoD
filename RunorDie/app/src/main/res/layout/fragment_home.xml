@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frag_home_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/frag_home_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="25dp"
-        android:clickable="true"
-        android:src="@drawable/ic_fab"
-        android:tooltipText="@string/frag_home_fab_tooltip"
-        app:fabSize="normal"
-        app:layout_behavior="com.paranoid.runordie.behavior.ScrollFABBehavior" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/home_swipe_refresh"
@@ -27,11 +16,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:scrollbars="vertical" />
-        <!--TODO:
-        android:layout_margin="@dimen/fab_margin"
-       "
-       app:backgroundTint="@color/custom_color_1" -->
     </android.support.v4.widget.SwipeRefreshLayout>
 
-
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/frag_home_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="25dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_fab"
+        app:backgroundTint="@color/app_secondary"
+        app:fabSize="normal"
+        app:layout_behavior="com.paranoid.runordie.behavior.ScrollFABBehavior" />
 </android.support.design.widget.CoordinatorLayout>

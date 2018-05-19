@@ -1,58 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:clickable="true"
-    android:focusable="true">
 
-    <RelativeLayout
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/app_primary_dark"
+    app:cardCornerRadius="10dp"
+    app:cardUseCompatPadding="true"
+    app:contentPadding="10dp">
+
+    <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:stretchColumns="*">
 
-        <TextView
-            android:id="@+id/list_track_startTime_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start time:" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/list_track_startTime_value"
-            android:layout_alignLeft="@id/list_track_startTime_title"
-            android:layout_below="@id/list_track_startTime_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/list_track_startTime_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/frag_home_track_startTime_title"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/list_track_distance_title"
-            android:layout_toRightOf="@id/list_track_startTime_value"
-            android:layout_marginLeft="15dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Distance:" />
+            <TextView
+                android:id="@+id/list_track_distance_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/frag_track_distance_title"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/list_track_distance_value"
-            android:layout_alignLeft="@id/list_track_distance_title"
-            android:layout_below="@id/list_track_distance_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/list_track_runTime_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/frag_home_track_runTime_title"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+        </TableRow>
 
-        <TextView
-            android:id="@+id/list_track_runTime_title"
-            android:layout_toRightOf="@id/list_track_distance_title"
-            android:layout_marginLeft="15dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Total time:" />
+        <TableRow>
+            <TextView
+                android:id="@+id/list_track_startTime_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                style="?android:textAppearanceMedium"/>
 
-        <TextView
-            android:id="@+id/list_track_runTime_value"
-            android:layout_alignLeft="@id/list_track_runTime_title"
-            android:layout_below="@id/list_track_runTime_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/list_track_distance_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                style="?android:textAppearanceMedium"/>
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/list_track_runTime_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                style="?android:textAppearanceMedium"
+               />
+        </TableRow>
+    </TableLayout>
 </android.support.v7.widget.CardView>

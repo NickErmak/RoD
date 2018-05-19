@@ -1,4 +1,4 @@
-package com.paranoid.runordie.adapters;
+package com.paranoid.runordie.adapters.recycler;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -18,7 +18,7 @@ import java.util.List;
 import static com.paranoid.runordie.utils.DateConverter.parseDateToString;
 import static com.paranoid.runordie.utils.DateConverter.parseTimeToString;
 
-public class NotificationRecyclerAdapter extends RecyclerView.Adapter<NotificationRecyclerAdapter.ViewHolder> {
+public class NotificationRecyclerAdapter extends RecyclerView.Adapter<NotificationRecyclerAdapter.ViewHolder>{
 
     public interface IConfigNotification {
         void showTimeDialog(int position, long time);
@@ -31,37 +31,36 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-
         long execTime;
         String title;
-        Button mBtnExecTime;
-        Button mBtnExecDate;
-        EditText mEtTitle;
+        Button btnExecTime;
+        Button btnExecDate;
+        EditText etTitle;
 
         ViewHolder(View v, final IConfigNotification configNotification) {
             super(v);
-            mEtTitle = (EditText) v.findViewById(R.id.list_notification_title);
-            mEtTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            etTitle = (EditText) v.findViewById(R.id.list_notification_title);
+            etTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if (!hasFocus) {
+                    if (!hasFocus && getAdapterPosition() != -1) {
                         String newTitle = ((TextView) v).getText().toString();
                         if (!newTitle.equals(title)) {
-                            mConfigNotification.onTitleChanged(getAdapterPosition(), newTitle);
+                            configNotification.onTitleChanged(getAdapterPosition(), newTitle);
                         }
                     }
                 }
             });
 
-            mBtnExecTime = (Button) v.findViewById(R.id.list_notification_time);
-            mBtnExecDate = (Button) v.findViewById(R.id.list_notification_date);
-            mBtnExecTime.setOnClickListener(new View.OnClickListener() {
+            btnExecTime = (Button) v.findViewById(R.id.list_notification_time);
+            btnExecDate = (Button) v.findViewById(R.id.list_notification_date);
+            btnExecTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     configNotification.showTimeDialog(getAdapterPosition(), execTime);
                 }
             });
-            mBtnExecDate.setOnClickListener(new View.OnClickListener() {
+            btnExecDate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     configNotification.showDateDialog(getAdapterPosition(), execTime);
@@ -70,12 +69,12 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
         }
     }
 
-    private List<Notification> mNotifications;
-    private IConfigNotification mConfigNotification;
+    private List<Notification> notifications;
+    private IConfigNotification configNotification;
 
     public NotificationRecyclerAdapter(IConfigNotification configNotification, List<Notification> notifications) {
-        mConfigNotification = configNotification;
-        mNotifications = notifications;
+        this.configNotification = configNotification;
+        this.notifications = notifications;
     }
 
     @NonNull
@@ -86,30 +85,32 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
                 parent,
                 false
         );
-        return new ViewHolder(view, mConfigNotification);
+        return new ViewHolder(view, configNotification);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Notification notification = mNotifications.get(position);
-
+        Notification notification = notifications.get(position);
         long execTime = notification.getExecutionTime();
         String title = notification.getTitle();
 
-        //TODO: remake to id and then find position by id??
-
         holder.execTime = execTime;
         holder.title = title;
-
-        holder.mEtTitle.setText(title);
-        holder.mBtnExecTime.setText(parseTimeToString(execTime));
-        holder.mBtnExecDate.setText(parseDateToString(execTime));
+        holder.etTitle.setText(title);
+        holder.btnExecTime.setText(parseTimeToString(execTime));
+        holder.btnExecDate.setText(parseDateToString(execTime));
     }
 
     @Override
     public int getItemCount() {
-        return mNotifications.size();
+        return notifications.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        Log.e("TAG", "getItemId");
+
+        return notifications.get(position).getId();
+    }
 }
 

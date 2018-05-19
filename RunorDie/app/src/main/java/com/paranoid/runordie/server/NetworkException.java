@@ -21,4 +21,9 @@ public class NetworkException extends RuntimeException {
     public String getErrorCode() {
         return errorCode == null ? DEFAULT_ERROR_CODE : errorCode;
     }
+
+    @Override
+    public String getMessage() {
+        return errorCode == null ? DEFAULT_ERROR_CODE : errorCode;
+    }
 }

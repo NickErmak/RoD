@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,20 +21,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.utils.DateConverter;
+import com.paranoid.runordie.utils.DistanceUtils;
 import com.paranoid.runordie.utils.JsonConverter;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
 
-import java.lang.reflect.Type;
-import java.util.LinkedList;
 import java.util.List;
 
 public class TrackFragment extends AbstractFragment implements OnMapReadyCallback, LoaderManager.LoaderCallbacks<Cursor> {
@@ -65,7 +60,10 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
     private TextView mTvRunTime, mTvDistance;
 
     public TrackFragment() {
-        super(FRAGMENT_TITLE, FRAGMENT_TAG);
+        super(
+                FRAGMENT_TITLE,
+                FRAGMENT_TAG,
+                R.id.frag_track_root_layout);
     }
 
     public static TrackFragment newInstance(long trackId) {
@@ -79,7 +77,9 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup parent, @Nullable Bundle savedInstanceState) {
-        trackId = getArguments().getLong(KEY_TRACK_ID);
+        if (getArguments() != null) {
+            trackId = getArguments().getLong(KEY_TRACK_ID);
+        }
         return inflater.inflate(R.layout.fragment_track, parent, false);
     }
 
@@ -89,13 +89,22 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
         mTvDistance = view.findViewById(R.id.frag_track_distance_value);
         mTvRunTime = view.findViewById(R.id.frag_track_runTime_value);
         mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag_track_map);
-        getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+        if (App.getInstance().getState().isTrackLoading()) {
+            showProgress(true);
+        } else {
+            loadTrackFromDB();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mMapFragment = null;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        //TODO: fix and add auto camera
-
         googleMap.addMarker(new MarkerOptions()
                 .title(getString(R.string.frag_track_map_marker_start))
                 .position(mPoints.get(0))
@@ -119,13 +128,28 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
         }
         LatLngBounds bounds = builder.build();
         int padding = 50;
+
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+
+        App.getInstance().getState().setTrackLoading(false);
+        showProgress(false);
+    }
+
+    private void loadTrackFromDB() {
+        App.getInstance().getState().setTrackLoading(true);
+        showProgress(true);
+        LoaderManager lm = getLoaderManager();
+        if (lm.getLoader(LOADER_ID) == null) {
+            lm.initLoader(LOADER_ID, null, this);
+        } else {
+            lm.restartLoader(LOADER_ID, null, this);
+        }
     }
 
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        return new PointsCursorLoader(getActivity(), trackId);
+        return new PointsCursorLoader(getContext(), trackId);
     }
 
     @Override
@@ -136,19 +160,15 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
                 int distanceColumnIndex = data.getColumnIndex(Track.DISTANCE);
                 int pointsColumnIndex = data.getColumnIndex(Track.POINTS);
 
-                long runTime = data.getLong(runTimeColumnIndex);
-                long distance = data.getInt(distanceColumnIndex);
+                int runTime = data.getInt(runTimeColumnIndex);
+                int distance = data.getInt(distanceColumnIndex);
                 String pointsJson = data.getString(pointsColumnIndex);
 
                 mPoints = JsonConverter.convertJson(pointsJson);
-                mTvRunTime.setText(DateConverter.parseTimeToString(runTime));
-                mTvDistance.setText(String.valueOf(distance));
+                mTvRunTime.setText(DateConverter.parseUnixTimeToTimerTime(runTime));
+                mTvDistance.setText(DistanceUtils.getDistanceFormat(distance));
             }
-
             mMapFragment.getMapAsync(this);
-        } else {
-            //TODO: snack?
-            Log.e("TAG", "can't load track points");
         }
     }
 

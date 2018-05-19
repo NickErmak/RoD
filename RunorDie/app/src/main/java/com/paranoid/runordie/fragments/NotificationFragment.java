@@ -1,13 +1,19 @@
 package com.paranoid.runordie.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -18,23 +24,19 @@ import android.view.ViewGroup;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
-import com.paranoid.runordie.adapters.NotificationRecyclerAdapter;
+import com.paranoid.runordie.adapters.recycler.NotificationRecyclerAdapter;
 import com.paranoid.runordie.controllers.SwipeController;
 import com.paranoid.runordie.dialogs.MyDatePickerDialog;
 import com.paranoid.runordie.dialogs.MyTimePickerDialog;
+import com.paranoid.runordie.helpers.CursorHelper;
 import com.paranoid.runordie.helpers.DbCrudHelper;
-import com.paranoid.runordie.models.Notification;
-import com.paranoid.runordie.utils.NotificationUtils;
+import com.paranoid.runordie.helpers.NotificationHelper;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import com.paranoid.runordie.utils.SnackbarUtils;
+import com.paranoid.runordie.utils.broadcastUtils.NotificationBroadcast;
 
 public class NotificationFragment extends AbstractFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        NotificationRecyclerAdapter.IConfigNotification {
+        NotificationRecyclerAdapter.IConfigNotification, SwipeController.ISwipeEvent {
 
     public static class NotificationCursorLoader extends SimpleCursorLoader {
         NotificationCursorLoader(Context context) {
@@ -47,34 +49,40 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
         }
     }
 
-    public static final String FRAGMENT_TITLE = App.getInstance().getString(R.string.frag_notification_title);
     public static final String FRAGMENT_TAG = "FRAGMENT_TAG_NOTIFICATION";
+    private static final String FRAGMENT_TITLE = App.getInstance().getString(R.string.frag_notification_title);
+    private static final String INVALID_DATE_MSG = App.getInstance().getString(R.string.invalid_time_input);
+    private static String RECYCLER_STATE_KEY = "RECYCLER_STATE_KEY";
     private static final int LOADER_ID = 1;
 
+    private NotificationHelper notificationHelper;
+    private NotificationRecyclerAdapter adapter;
 
-    private NotificationRecyclerAdapter mAdapter;
-    private IActivityManager mActivityManager;
-    private List<Notification> mNotifications;
-    private Set<Integer> mPositionListForRefresh;
+    private RecyclerView recyclerView;
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            NotificationBroadcast.ACTION action = (NotificationBroadcast.ACTION) intent.getSerializableExtra(
+                    NotificationBroadcast.EXTRA_ACTION);
+            switch (action) {
+                case REFRESHING_DB_SUCCESS:
+                    Log.d("TAG", "Broadcast (notification fragment): refreshing DB success");
+                    App.getInstance().getState().setNotificationDbRefreshing(false);
+                    loadNotificationsFromDB();
+                    break;
+            }
+        }
+    };
 
     public NotificationFragment() {
-        super(FRAGMENT_TITLE, FRAGMENT_TAG);
+        super(
+                FRAGMENT_TITLE,
+                FRAGMENT_TAG,
+                R.id.frag_notification_root_layout);
     }
 
     public static NotificationFragment newInstance() {
         return new NotificationFragment();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mActivityManager = (IActivityManager) context;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
     }
 
     @Nullable
@@ -87,44 +95,87 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.frag_notification_fab).setOnClickListener(new View.OnClickListener() {
+        recyclerView = view.findViewById(R.id.frag_notification_rv_notifications);
+        view.findViewById(R.id.frag_notification_btn_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Notification newNotification = new Notification(
-                        Calendar.getInstance().getTimeInMillis(),
-                        String.format(getString(R.string.notification_title_format), (mNotifications.size() + 1))
-                );
-                mNotifications.add(newNotification);
-                int position = mNotifications.size() - 1;
-                mPositionListForRefresh.add(position);
-                mAdapter.notifyItemInserted(position);
+                getFragmentManager().popBackStack();
             }
         });
 
+        notificationHelper = new NotificationHelper();
+        setFab((FloatingActionButton) view.findViewById(R.id.frag_notification_fab));
+        setRecycler(recyclerView, savedInstanceState);
 
-        if (savedInstanceState == null) {
-            if (mActivityManager != null) {
-                mActivityManager.showProgress(true);
-            }
-            mPositionListForRefresh = new LinkedHashSet<>();
-            mNotifications = new ArrayList<>();
-            mAdapter = new NotificationRecyclerAdapter(this, mNotifications);
-
-            getLoaderManager().initLoader(LOADER_ID, null, this);
+        if (App.getInstance().getState().isNotificationDbRefreshing() ||
+                App.getInstance().getState().isNotificationsLoading()) {
+            showProgress(true);
+        } else {
+            loadNotificationsFromDB();
         }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
+                receiver,
+                new IntentFilter(NotificationBroadcast.BROADCAST_ACTION)
+        );
+    }
 
-        RecyclerView recyclerView = view.findViewById(R.id.frag_notification_rv_notifications);
-        recyclerView.setLayoutManager(new LinearLayoutManager(
-                App.getInstance(),
-                LinearLayoutManager.VERTICAL,
-                false
-        ));
-        recyclerView.setAdapter(mAdapter);
-        SwipeController swipeController = new SwipeController();
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        Parcelable recyclerState = recyclerView.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(RECYCLER_STATE_KEY, recyclerState);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
+        notificationHelper.save();
+    }
+
+    private void setFab(FloatingActionButton fab) {
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int newNotificationIndex = notificationHelper.addNewNotification();
+                adapter.notifyItemInserted(newNotificationIndex);
+            }
+        });
+    }
+
+    private void setRecycler(RecyclerView recyclerView, Bundle savedInstanceState) {
+        adapter = new NotificationRecyclerAdapter(
+                this,
+                notificationHelper.getNotifications()
+        );
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+        SwipeController swipeController = new SwipeController(this);
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(recyclerView);
 
+        if (savedInstanceState != null) {
+            Parcelable recyclerState = savedInstanceState.getParcelable(RECYCLER_STATE_KEY);
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
+        }
+    }
+
+    private void loadNotificationsFromDB() {
+        Log.d("TAG", "loading notifications from DB..");
+        showProgress(true);
+        LoaderManager lm = getLoaderManager();
+        if (lm.getLoader(LOADER_ID) == null) {
+            lm.initLoader(LOADER_ID, null, this);
+        } else {
+            lm.restartLoader(LOADER_ID, null, this);
+        }
     }
 
     @NonNull
@@ -135,32 +186,15 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-
-        if (mActivityManager != null) {
-            mActivityManager.showProgress(false);
-        }
-        if (data != null) {
-            if (data.moveToFirst()) {
-                int idIndex = data.getColumnIndexOrThrow(Notification._ID);
-                int execTimeIndex = data.getColumnIndexOrThrow(Notification.EXEC_TIME);
-                int titleIndex = data.getColumnIndexOrThrow(Notification.TITLE);
-
-                do {
-                    Notification notification = new Notification(
-                            data.getLong(idIndex),
-                            data.getLong(execTimeIndex),
-                            data.getString(titleIndex)
-                    );
-                    mNotifications.add(notification);
-                } while (data.moveToNext());
-            }
-        }
-        getLoaderManager().destroyLoader(LOADER_ID);
+        Log.d("TAG", "loading notifications from DB: SUCCESS");
+        notificationHelper.setNotifications(CursorHelper.getNotifications(data));
+        adapter.notifyDataSetChanged();
+        App.getInstance().getState().setNotificationsLoading(false);
+        showProgress(false);
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-        mNotifications.clear();
     }
 
     @Override
@@ -177,49 +211,23 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
 
     @Override
     public void onTimeChanged(int position, long time) {
-        Notification refreshedNotification = mNotifications.get(position);
-        refreshedNotification.setExecutionTime(time);
-        mPositionListForRefresh.add(position);
-
-        mAdapter.notifyItemChanged(position);
+        if (time > System.currentTimeMillis()) {
+            notificationHelper.refreshTime(position, time);
+            adapter.notifyItemChanged(position);
+        } else {
+            SnackbarUtils.showSnack(INVALID_DATE_MSG);
+        }
     }
 
     @Override
     public void onTitleChanged(int position, String title) {
-        Notification refreshedNotification = mNotifications.get(position);
-        refreshedNotification.setTitle(title);
-        mPositionListForRefresh.add(position);
-
-        mAdapter.notifyItemChanged(position);
+        notificationHelper.refreshTitle(position, title);
+        adapter.notifyItemChanged(position);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        saveChanges();
-    }
-
-    private void saveChanges() {
-        for (int pos : mPositionListForRefresh) {
-            Notification notification = mNotifications.get(pos);
-            DbCrudHelper.updateNotification(notification);
-        }
-        mPositionListForRefresh.clear();
-
-        Notification notificationForExecute = null;
-
-        for (Notification notification: mNotifications) {
-            if (notification.getExecutionTime() > Calendar.getInstance().getTimeInMillis()) {
-                if (notificationForExecute == null || notificationForExecute.getExecutionTime() > notification.getExecutionTime()) {
-                    notificationForExecute = notification;
-                }
-            }
-        }
-
-        Log.e("TAG", "exec note = " + notificationForExecute);
-        if (notificationForExecute != null
-                && notificationForExecute.getExecutionTime() > Calendar.getInstance().getTimeInMillis()) {
-            NotificationUtils.createAlarmNotification(notificationForExecute);
-        }
+    public void handleSwipe(int itemPosition) {
+        notificationHelper.deleteNotification(itemPosition);
+        adapter.notifyItemRemoved(itemPosition);
     }
 }

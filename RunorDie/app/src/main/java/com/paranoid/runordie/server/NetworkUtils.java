@@ -3,8 +3,8 @@ package com.paranoid.runordie.server;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.paranoid.runordie.adapters.DateTypeAdapter;
-import com.paranoid.runordie.adapters.LatLngTypeAdapter;
+import com.paranoid.runordie.adapters.type.DateTypeAdapter;
+import com.paranoid.runordie.adapters.type.LatLngTypeAdapter;
 import com.paranoid.runordie.server.interceptors.AuthInterceptor;
 
 import java.util.Date;

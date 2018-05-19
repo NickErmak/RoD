@@ -1,4 +1,4 @@
-package com.paranoid.runordie.adapters;
+package com.paranoid.runordie.adapters.type;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.TypeAdapter;
@@ -12,7 +12,6 @@ public class LatLngTypeAdapter extends TypeAdapter<LatLng> {
     private static final String LNG = "lng";
     private static final String LAT = "lat";
 
-    //TODO delete
     @Override
     public void write(JsonWriter out, LatLng value) throws IOException {
         if (value == null) {
@@ -48,7 +47,6 @@ public class LatLngTypeAdapter extends TypeAdapter<LatLng> {
                 return new LatLng(lat, lng);
             }
         }
-
         return null;
     }
 }

@@ -32,7 +32,7 @@ class SyncServerProvider {
         return loadUnsyncTracks().onSuccessTask(new Continuation<List<Track>, Task<Void>>() {
             @Override
             public Task<Void> then(Task<List<Track>> task) throws Exception {
-                Log.d("TAG", "server synchronization with DB..");
+                Log.d("TAG", "sync: server synchronization with DB..");
                 List<Task<Void>> trackUpdateTasks = new LinkedList<>();
                 List<Track> unsyncTracks = task.getResult();
                 for (Track track : unsyncTracks) {
@@ -44,11 +44,11 @@ class SyncServerProvider {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 if (task.isCompleted()) {
-                    Log.d("TAG", "server synchronization with DB: OK");
+                    Log.d("TAG", "sync: server synchronization with DB: OK");
                 }
 
                 if (task.isFaulted()) {
-                    Log.e("TAG", "server synchronization with DB: ERROR " + task.getError());
+                    Log.e("TAG", "sync: server synchronization with DB: ERROR " + task.getError());
                 }
                 return null;
             }

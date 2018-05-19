@@ -26,4 +26,7 @@
                 android:background="@drawable/logo120" />
         </FrameLayout>
     </LinearLayout>
+    <include
+        android:id="@+id/progress_bar"
+        layout="@layout/progress_bar" />
 </android.support.design.widget.CoordinatorLayout>

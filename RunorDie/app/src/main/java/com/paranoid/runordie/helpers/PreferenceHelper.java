@@ -17,13 +17,15 @@ public class PreferenceHelper {
     public static User loadUser() {
         User user = null;
         String email = PreferenceUtils.getStringPref(LOGIN_KEY);
+        String firstName = PreferenceUtils.getStringPref(FIRST_NAME_KEY);
+        String lastName = PreferenceUtils.getStringPref(LAST_NAME_KEY);
         String password = SecurityUtils.decode(
                 PreferenceUtils.getStringPref(PASSWORD_KEY)
         );
 
         if (!(email == null || password == null)) {
             Log.d("TAG", "active session");
-            user = new User(email, password);
+            user = new User(email, firstName, lastName, password);
         } else {
             Log.d("TAG", "guest session");
         }

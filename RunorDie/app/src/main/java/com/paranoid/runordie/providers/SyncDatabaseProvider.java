@@ -27,7 +27,7 @@ public class SyncDatabaseProvider {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Log.d("TAG", "database synchronization with server..");
+                Log.d("TAG", "sync: database synchronization with server..");
                 return syncDBWithServerAsync().getResult();
             }
         });
@@ -54,11 +54,11 @@ public class SyncDatabaseProvider {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 if (task.isCompleted()) {
-                    Log.d("TAG", "database synchronization with server: OK");
-                    HomeBroadcast.sendBroadcast(HomeBroadcast.ACTION.TRACKS_REFRESHED);
+                    Log.d("TAG", "sync: database synchronization with server: OK");
+                    HomeBroadcast.sendBroadcast(HomeBroadcast.ACTION.SYNCHRONIZATION_SUCCESS);
                 }
                 if (task.isFaulted()) {
-                    Log.e("TAG", "database synchronization with server: ERROR "
+                    Log.e("TAG", "sync: database synchronization with server: ERROR "
                             + task.getError().getMessage());
                 }
                 return null;
@@ -83,7 +83,7 @@ public class SyncDatabaseProvider {
     }
 
     private static Task<TrackListResult> getServerTracksAsync() {
-        Log.d("TAG", "loading tracks from server..");
+        Log.d("TAG", "sync: loading tracks from server..");
         final TaskCompletionSource<TrackListResult> tcs = new TaskCompletionSource<>();
         ApiClient.getInstance().getTracks(new Callback<TrackResponse>() {
             @Override
@@ -92,13 +92,13 @@ public class SyncDatabaseProvider {
                         TrackListResult.TYPE_FROM.SERVER,
                         response.getTracks()
                 );
-                Log.d("TAG", "loading tracks from server: SUCCESS");
+                Log.d("TAG", "sync: loading tracks from server: SUCCESS");
                 tcs.setResult(result);
             }
 
             @Override
             public void failure(NetworkException exception) {
-                Log.e("TAG", "loading tracks from server: ERROR "
+                Log.e("TAG", "sync:loading tracks from server: ERROR "
                         + exception.getErrorCode());
                 tcs.setError(exception);
             }
@@ -110,9 +110,9 @@ public class SyncDatabaseProvider {
         return Task.call(new Callable<TrackListResult>() {
             @Override
             public TrackListResult call() {
-                Log.d("TAG", "loading tracks from DB..");
+                Log.d("TAG", "sync: loading tracks from DB..");
                 List<Track> dbTrackList = DbCrudHelper.loadTracksServerIdOnly();
-                Log.d("TAG", "loading tracks from DB: SUCCESS");
+                Log.d("TAG", "sync: loading tracks from DB: SUCCESS");
                 return new TrackListResult(
                         TrackListResult.TYPE_FROM.DATABASE,
                         dbTrackList
@@ -141,18 +141,18 @@ public class SyncDatabaseProvider {
     }
 
     private static Task<List<LatLng>> getTrackPoints(final long serverId) {
-        Log.d("TAG", "loading track points (id = " + serverId + ") from server..");
+        Log.d("TAG", "sync: loading track points (id = " + serverId + ") from server..");
         final TaskCompletionSource<List<LatLng>> tcs = new TaskCompletionSource<>();
         ApiClient.getInstance().getTrackPoints(serverId, new Callback<PointsResponse>() {
             @Override
             public void success(PointsResponse response) {
-                Log.d("TAG", "loading track points (id = " + serverId + ") from server: OK");
+                Log.d("TAG", "sync: loading track points (id = " + serverId + ") from server: OK");
                 tcs.setResult(response.getPoints());
             }
 
             @Override
             public void failure(NetworkException exception) {
-                Log.e("TAG", "loading track points (id = " + serverId + ") from server: ERROR "
+                Log.e("TAG", "sync: loading track points (id = " + serverId + ") from server: ERROR "
                         + exception.getErrorCode());
                 tcs.setError(exception);
             }
@@ -165,7 +165,7 @@ public class SyncDatabaseProvider {
             @Override
             public Void call() throws Exception {
                 DbCrudHelper.insertTrackWithServerId(track);
-                Log.d("TAG", "refreshing track id = " + track.getServerId() + "OK");
+                Log.d("TAG", "sync: refreshing track id = " + track.getServerId() + "OK");
                 return null;
             }
         });

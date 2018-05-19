@@ -17,7 +17,6 @@ import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.utils.JsonConverter;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -110,32 +109,6 @@ public class DbCrudHelper {
         );
     }
 
-    public static List<Notification> getNotifications() {
-        List<Notification> notifications = new ArrayList<>();
-
-        Cursor cursor = App.getInstance().getDb().rawQuery(
-                App.getInstance().getString(R.string.sql_select_notifications),
-                null
-        );
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                int idIndex = cursor.getColumnIndexOrThrow("_id");
-                int execTimeIndex = cursor.getColumnIndexOrThrow("execTime");
-                int titleIndex = cursor.getColumnIndexOrThrow("title");
-
-                do {
-                    Notification notification = new Notification(
-                            cursor.getLong(idIndex),
-                            cursor.getLong(execTimeIndex),
-                            cursor.getString(titleIndex)
-                    );
-                    notifications.add(notification);
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
-        }
-        return notifications;
-    }
 
     //TODO: why I convert type from long to String and then paste in_from_left DB again int
     public static Cursor getTrack(long trackId) {
@@ -180,12 +153,6 @@ public class DbCrudHelper {
         );
     }
 
-    public static void insertTracks(List<Track> tracks) {
-        for (Track track : tracks) {
-            insertTrackWithServerId(track);
-        }
-    }
-
     public static long insert(String sql, String[] columns) {
         SQLiteDatabase db = getInstance().getDb();
         long idInsert;
@@ -219,4 +186,15 @@ public class DbCrudHelper {
                 }
         );
     }
+
+    public static void deleteNotification(long id) {
+        App.getInstance().getDb().execSQL(
+                App.getInstance().getString(R.string.sql_delete_notification),
+                new String[]{
+                        String.valueOf(id)
+                }
+        );
+    }
+
+    //todo method for create String array
 }

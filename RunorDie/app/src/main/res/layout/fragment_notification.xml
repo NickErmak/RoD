@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frag_notification_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -9,11 +10,11 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/frag_notification_rv_notifications"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:orientation="horizontal"
         android:overScrollMode="never"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/frag_notification_fab"
@@ -24,8 +25,15 @@
         android:src="@drawable/ic_add_white_24dp"
         app:layout_behavior="com.paranoid.runordie.behavior.ScrollFABBehavior"
         app:fabSize="normal"
-        app:backgroundTint="@color/app_primary"
-        android:tooltipText="@string/frag_notifications_fab_tooltip"
-        android:clickable="true"/>
+        app:backgroundTint="@color/app_secondary"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <Button
+        android:id="@+id/frag_notification_btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/frag_notification_btn_save_text"
+        android:layout_gravity="bottom|center_horizontal"/>
 
 </android.support.design.widget.CoordinatorLayout>

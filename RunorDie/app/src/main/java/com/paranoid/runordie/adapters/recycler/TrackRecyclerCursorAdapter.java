@@ -1,4 +1,4 @@
-package com.paranoid.runordie.adapters;
+package com.paranoid.runordie.adapters.recycler;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -8,19 +8,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.Track;
+import com.paranoid.runordie.utils.DateConverter;
+import com.paranoid.runordie.utils.DistanceUtils;
 
 import static com.paranoid.runordie.fragments.HomeFragment.IOnTrackClickEvent;
-import static com.paranoid.runordie.utils.DateConverter.parseDateToString;
 
-public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackViewHolder> {
+public class TrackRecyclerCursorAdapter extends RecyclerViewCursorAdapter<TrackRecyclerCursorAdapter.TrackViewHolder> {
 
-    private final IOnTrackClickEvent mOnTrackClickEvent;
+    private final IOnTrackClickEvent onTrackClickEvent;
 
-    public TrackAdapter(Cursor cursor, IOnTrackClickEvent onTrackClickEvent) {
+    public TrackRecyclerCursorAdapter(Cursor cursor, IOnTrackClickEvent onTrackClickEvent) {
         super(null);
-        mOnTrackClickEvent = onTrackClickEvent;
+        this.onTrackClickEvent = onTrackClickEvent;
         swapCursor(cursor);
     }
 
@@ -29,7 +31,7 @@ public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackVi
     public TrackViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_track, parent, false);
-        return new TrackViewHolder(view, mOnTrackClickEvent);
+        return new TrackViewHolder(view, onTrackClickEvent);
     }
 
     @Override
@@ -44,10 +46,11 @@ public class TrackAdapter extends RecyclerViewCursorAdapter<TrackAdapter.TrackVi
         int runTime = cursor.getInt(runTimeColumnIndex);
         int distance = cursor.getInt(distanceColumnIndex);
 
+        //todo
         holder.id = id;
-        holder.mTvTrackStartTime.setText(parseDateToString(startTime));
-        holder.mTvTrackRunTime.setText(String.valueOf(runTime));
-        holder.mTvTrackDistance.setText(String.valueOf(distance));
+        holder.mTvTrackStartTime.setText(DateConverter.parseDateToString(startTime) + '\n' + DateConverter.parseTimeToString(startTime));
+        holder.mTvTrackRunTime.setText(DateConverter.parseUnixTimeToTimerTime(runTime));
+        holder.mTvTrackDistance.setText(DistanceUtils.getDistanceFormat(distance));
     }
 
     public static class TrackViewHolder extends RecyclerView.ViewHolder {

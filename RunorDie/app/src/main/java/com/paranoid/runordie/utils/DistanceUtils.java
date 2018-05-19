@@ -4,19 +4,18 @@ import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.paranoid.runordie.App;
+import com.paranoid.runordie.R;
 
 import java.util.Iterator;
 import java.util.List;
 
 public class DistanceUtils {
 
-    //TODO: fix for points size = 1 or it works:)
     public static int getDistance(List<LatLng> points) {
-        Log.e("TAG", "getDistance method. Points number = " + points.size());
-
         int distance = 0;
-        float[] result = new float[1];
 
+        float[] result = new float[1];
         Iterator<LatLng> iterator = points.iterator();
 
         LatLng endPoint = iterator.next();
@@ -35,5 +34,12 @@ public class DistanceUtils {
             distance += result[0];
         }
         return distance;
+    }
+
+    public static String getDistanceFormat(int distance) {
+        return String.format(
+                App.getInstance().getString(R.string.run_distance_format),
+                distance
+        );
     }
 }

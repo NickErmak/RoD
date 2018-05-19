@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import com.paranoid.runordie.utils.DateConverter;
 
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 public class TimerHelper {
@@ -13,7 +14,9 @@ public class TimerHelper {
     private Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
-            timerTextView.setText(DateConverter.getTimerTime(startTime));
+            if (timerTextView != null) {
+                timerTextView.get().setText(DateConverter.getCurrentTimerTime(startTime));
+            }
             timerHandler.postDelayed(this, TIMER_REFRESH_INTERVAL_MS);
         }
     };
@@ -24,10 +27,10 @@ public class TimerHelper {
 
     private long startTime;
     private Handler timerHandler;
-    private TextView timerTextView;
+    private WeakReference<TextView> timerTextView;
 
     public TimerHelper(TextView timerTextView, Handler timerHandler, long startTime) {
-        this.timerTextView = timerTextView;
+        this.timerTextView = new WeakReference<>(timerTextView);
         this.timerHandler = timerHandler;
         this.startTime = startTime;
     }

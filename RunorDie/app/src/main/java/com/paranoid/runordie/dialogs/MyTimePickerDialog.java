@@ -7,11 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.TimePicker;
 
-import com.paranoid.runordie.adapters.NotificationRecyclerAdapter.IConfigNotification;
-import com.paranoid.runordie.utils.DateConverter;
+import com.paranoid.runordie.adapters.recycler.NotificationRecyclerAdapter.IConfigNotification;
 
 import java.util.Calendar;
 

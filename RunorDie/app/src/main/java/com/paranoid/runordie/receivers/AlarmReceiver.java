@@ -6,35 +6,30 @@ import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.PowerManager;
-import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import com.paranoid.runordie.App;
-import com.paranoid.runordie.Test;
-import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.activities.SplashActivity;
-import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.utils.AlarmManagerUtils;
 import com.paranoid.runordie.utils.NotificationUtils;
+import com.paranoid.runordie.utils.RingtoneUtils;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d("TAG", "Alarm receiver: onReceive");
 
-        PowerManager pm = (PowerManager) App.getInstance().getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(
-                PowerManager.SCREEN_DIM_WAKE_LOCK
-                        | PowerManager.ON_AFTER_RELEASE,
-                "tag");
-        wl.acquire(0);
-        Test.createNotification(intent.getStringExtra("TITLE_KEY"));
+        Intent routeIntent = new Intent(App.getInstance(), SplashActivity.class);
+        routeIntent.putExtra(
+                SplashActivity.ROUTE_KEY,
+                SplashActivity.ROUTE.RUN_ACTIVITY
+        );
 
-        wl.release();
-
-        Log.e("TAG", "receive alarm");
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Ringtone r = RingtoneManager.getRingtone(App.getInstance(), notification);
-        r.play();
+        NotificationUtils.showNotification(
+                intent.getStringExtra(AlarmManagerUtils.NOTIFICATION_MSG_KEY),
+                routeIntent
+        );
+        RingtoneUtils.playRingtone();
     }
 }

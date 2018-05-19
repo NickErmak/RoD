@@ -10,7 +10,7 @@ public class HomeBroadcast {
     public static final String BROADCAST_ACTION = "local:HomeBroadcast.BROADCAST_ACTION";
     public static final String EXTRA_ACTION = "EXTRA_ACTION";
 
-    public enum ACTION {TRACKS_REFRESHED}
+    public enum ACTION {SYNCHRONIZATION_SUCCESS}
 
     public static void sendBroadcast(ACTION action) {
         LocalBroadcastManager.getInstance(App.getInstance()).sendBroadcast(

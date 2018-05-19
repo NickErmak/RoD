@@ -1,62 +1,93 @@
 package com.paranoid.runordie.utils;
 
-import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.paranoid.runordie.App;
-import com.paranoid.runordie.models.Notification;
-import com.paranoid.runordie.receivers.AlarmReceiver;
-
-import java.util.Calendar;
+import com.paranoid.runordie.R;
 
 public class NotificationUtils {
 
-    public static void createAlarmNotification(Notification notification) {
-        String title = notification.getTitle();
-        long execTime = notification.getExecutionTime();
+    private static final String CHANNEL_ID = "228";
+    private static final String CHANNEL_NAME = "CHANNEL_NAME";
+    private static final String CHANNEL_DESCRIPTION = "CHANNEL_DESCRIPTION";
+    private static final String NOTIFICATION_TITLE = App.getInstance().getString(R.string.notification_content_title);
+    private static final int NOTIFICATION_ID = 882;
+    private static final int PENDING_INTENT_REQUEST_CODE = 115;
 
-        Context context = App.getInstance();
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    public static void createChannel(NotificationManager notificationManager) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && notificationManager.getNotificationChannel(CHANNEL_ID) == null) {
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                0, // requestCode, полезно, если вызывается активити, или один ресивер обрабатывает несколько задач
-                new Intent(context, AlarmReceiver.class)
-                        .putExtra("TITLE_KEY", title),
-                PendingIntent.FLAG_UPDATE_CURRENT // если такой PendingIntent уже есть, то заменить его
-        );
-
-        Log.e("TAG", "execTime = " + DateConverter.parseDateToString(execTime) + "||"+ DateConverter.parseTimeToString(execTime));
-
-        Calendar calendar = Calendar.getInstance();
-        Calendar calTest = Calendar.getInstance();
-        calTest.setTimeInMillis(execTime - calendar.getTimeInMillis());
-        Log.e("TAG", "execution time in_from_left " + calTest.get(Calendar.MINUTE) + "min, " + calTest.get(Calendar.SECOND) + "sec");
-        Log.e("TAG", "time ms = "+ (execTime - calendar.getTimeInMillis()));
-
-        int currentApiVersion = Build.VERSION.SDK_INT;
-        if (currentApiVersion >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
-                    execTime, // время, когда надо вызвать PendingIntent
-                    pendingIntent // PendingIntent, который надо вызвать
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT
             );
-        } else if (currentApiVersion >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
-                    execTime, // время, когда надо вызвать PendingIntent
-                    pendingIntent // PendingIntent, который надо вызвать
+            channel.setDescription(CHANNEL_DESCRIPTION);
+            channel.enableLights(true);
+            channel.setLightColor(Color.BLUE);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    public static void showNotification(String msg, Intent intent) {
+        NotificationManager notificationManager = (NotificationManager) App.getInstance()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            createChannel(notificationManager);
+            Notification newNotification = createNotification(msg, intent);
+            notificationManager.notify(
+                    NOTIFICATION_ID,
+                    newNotification
             );
         } else {
-            alarmManager.set(
-                    AlarmManager.RTC_WAKEUP, // время в UTC, если телефон "спит", то будет "разбужен""
-                    execTime, // время, когда надо вызвать PendingIntent
-                    pendingIntent // PendingIntent, который надо вызвать
-            );
+            Log.e("TAG", "Can't get notification service");
+            SnackbarUtils.showSnack(R.string.default_error);
         }
+    }
+
+
+    public static Notification createForegroundNotification(String msg, Intent intent) {
+        NotificationCompat.Builder builder = (intent != null) ? newNotificationBuilderWithIntent(msg, intent)
+                : newNotificationBuilder(msg);
+
+        return builder.setAutoCancel(false)
+                .setOngoing(true)
+                .build();
+    }
+
+    private static Notification createNotification(String msg, Intent intent) {
+        NotificationCompat.Builder builder = (intent != null) ? newNotificationBuilderWithIntent(msg, intent)
+                : newNotificationBuilder(msg);
+        return builder.setAutoCancel(true)
+                .build();
+    }
+
+    private static NotificationCompat.Builder newNotificationBuilderWithIntent(String msg, Intent intent) {
+        PendingIntent pendingIntent =
+                TaskStackBuilder.create(App.getInstance())
+                        .addNextIntentWithParentStack(intent)
+                        .getPendingIntent(PENDING_INTENT_REQUEST_CODE, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        return newNotificationBuilder(msg)
+                .setContentIntent(pendingIntent);
+    }
+
+    private static NotificationCompat.Builder newNotificationBuilder(String msg) {
+        return new NotificationCompat.Builder(App.getInstance(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.main_icon)
+                .setContentTitle(NOTIFICATION_TITLE)
+                .setContentText(msg)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
     }
 }

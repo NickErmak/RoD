@@ -5,8 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,8 +24,8 @@ import static com.paranoid.runordie.utils.broadcastUtils.AppBroadcast.EXTRA_ACTI
 
 public abstract class BaseActivity extends AppCompatActivity implements IActionBarHandler, IProgressHandler, IRootLayoutHandler {
 
-    private Toolbar mToolbar;
-    private View mProgressView;
+    private Toolbar toolbar;
+    private View progressView;
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -40,23 +40,6 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
                 case STOP_REFRESHING:
                     showProgress(false);
                     break;
-
-              /*  case ERROR:
-                    String errorCode = intent.getStringExtra(EXTRA_ERROR);
-                    if (errorCode.equals(AbstractResponse.INVALID_TOKEN)) {
-                        //TODO: snack
-                        Toast.makeText(getApplicationContext(), "Authorization error", Toast.LENGTH_LONG).show();
-
-                        Intent intent2 = new Intent(getApplicationContext(), AuthActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent2);
-                        finish();
-                    }
-
-                    Log.e("TAG", "error_code: " + errorCode);
-                    break;*/
-
-                //TODO: test. rebuild for bolts
             }
         }
     };
@@ -65,43 +48,26 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
 
-        mProgressView = findViewById(R.id.progress_bar);
+        progressView = findViewById(R.id.progress_bar);
         setupToolbar();
     }
 
     private void setupToolbar() {
-        mToolbar = findViewById(R.id.toolbar);
-        if (mToolbar != null) {
-            setSupportActionBar(mToolbar);
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
     }
 
     @Override
-    public Toolbar getToolBar() {
-        return mToolbar;
-    }
-
-    @Override
-    public void setActionBarTitle(int titleId) {
-        setActionBarTitle(getString(titleId));
-    }
-
-    @Override
-    public void setActionBarTitle(String title) {
-        if (title != null) {
-            getSupportActionBar().setTitle(title);
-        } else {
-            Log.e("TAG", "actionBar title is null");
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         App.getInstance().getState().setCurrentActivity(this);
-        if (App.getInstance().getState().isLoading()) {
-            showProgress(true);
-        }
         LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
                 receiver,
                 new IntentFilter(BROADCAST_ACTION)
@@ -109,10 +75,9 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
     }
 
     @Override
-    protected void onPause() {
+    protected void onStop() {
         clearReferences();
-        super.onPause();
-        showProgress(false);
+        super.onStop();
         LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
     }
 
@@ -123,12 +88,34 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
     }
 
     @Override
-    public void showProgress(boolean isLoading) {
-        if (mProgressView != null) {
-            mProgressView.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+    public Toolbar getToolBar() {
+        return toolbar;
+    }
+
+    @Override
+    public void setActionBarTitle(int titleId) {
+        setActionBarTitle(getString(titleId));
+    }
+
+    @Override
+    public void setActionBarTitle(String title) {
+        ActionBar actionBar = getSupportActionBar();
+        if (title != null && actionBar != null) {
+            actionBar.setTitle(title);
         } else {
-            Log.e("TAG", "progress view is null");
+            Log.e("TAG", "can't set action bar title");
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public void showProgress(boolean isLoading) {
+        progressView.setVisibility(isLoading ? View.VISIBLE : View.GONE);
     }
 
     private void clearReferences() {

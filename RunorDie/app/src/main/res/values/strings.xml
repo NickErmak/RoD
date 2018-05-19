@@ -14,17 +14,29 @@
     <string name="auth_et_repeatPassword_hint">Repeat password</string>
     <string name="auth_btn_signIn_text">Sign in</string>
     <string name="auth_btn_signUp_text">Sign up</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+
     <string name="error_field_required">This field is required</string>
+    <string name="error_invalid_email">Invalid email address</string>
+    <string name="error_invalid_firstName">Invalid first name</string>
+    <string name="error_invalid_lastName">Invalid last name</string>
+    <string name="error_short_password">Password is too short</string>
+    <string name="error_not_same_passwords">Passwords not the same</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+
 
     <!-- Strings related to Home Screen -->
-    <string name="frag_home_fab_tooltip">Start new Track</string>
+    <string name="frag_home_track_startTime_title">Start:</string>
+    <string name="frag_home_track_distance_title">Distance:</string>
+    <string name="frag_home_track_runTime_title">Run time:</string>
+
 
     <!-- Strings related to Run Screen -->
     <string name="run_title">Run or Die</string>
-    <string name="distance_format">%1$d m</string>
+    <string name="run_distance_format">%1$d m</string>
+    <string name="run_timer_format">%1$s:%2$s:%3$s.%4$s</string>
+    <string name="location_access_request">To continue please turn on JPS.</string>
+    <string name="location_access_denied">To continue please turn on JPS.</string>
+    <string name="run_finish_error">Finish tracking before return</string>
 
     <!-- Strings related to Drawer -->
     <string name="drawer_open">open</string>
@@ -44,11 +56,15 @@
     <!-- Strings related to Notification Fragment -->
     <string name="frag_notification_title">Notifications</string>
     <string name="notification_title_format">Notification %1$d</string>
-    <string name="frag_notifications_fab_tooltip">Add new notification</string>
+    <string name="frag_notification_btn_save_text">save</string>
+
+    <!-- Strings related to Notifications -->
+    <string name="notification_content_title">Run or Die</string>
+    <string name="notification_track_writing_msg">Writing new track</string>
 
     <!-- Strings related to SQL requests -->
     <string name="sql_select_tracks">
-        SELECT t._id, t.serverId, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime
+        SELECT t._id, t.serverId, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime DESC
     </string>
     <string name="sql_select_tracks_unsync">
         SELECT t._id, t.startTime, t.runTime, t.distance, t.points FROM track t WHERE t.serverId is null OR t.serverId = \'\'
@@ -73,16 +89,28 @@
        INSERT INTO notification (executionTime, title) VALUES (?, ?)
     </string>
     <string name="sql_update_notification">UPDATE notification SET executionTime = ?, title = ? WHERE _id = ?</string>
+    <string name="sql_delete_notification">DELETE FROM notification WHERE _id = ?</string>
 
-    <!-- Strings related to Exceptions -->
+    <!-- Strings related to Errors -->
+
     <string name="default_error">Something went wrong!</string>
     <string name="invalid_credentials_error">Incorrect email or password!</string>
     <string name="internet_connection_error">No Internet connection</string>
-    <string name="permission_write_external_not_granted">Access denied</string>
+    <string name="required_fields_are_empty_error">Required fields are empty</string>
+    <string name="invalid_email_error">Invalid email</string>
+    <string name="email_already_exists_error">Email already exists</string>
+    <string name="invalid_token_error">Session expired</string>
+    <string name="invalid_time_input">Invalid date or time</string>
+    <string name="short_distance_error">Too short distance</string>
 
+    <!-- Strings related to Permissions -->
+    <string name="permission_dialog_title">Permission necessary</string>
+    <string name="permission_access_fine_location">Location access</string>
+    <string name="permission_access_fine_location_not_granted">JPS access not granted</string>
+    <string name="permission_dialog_msg_format">%1$s is necessary.</string>
 
-
-
+    <string name="ok">OK</string>
+    <string name="no">Nope</string>
     <string name="yes">yes</string>
 
 
