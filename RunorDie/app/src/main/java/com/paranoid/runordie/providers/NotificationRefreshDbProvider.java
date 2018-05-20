@@ -52,7 +52,7 @@ public class NotificationRefreshDbProvider {
                 NotificationBroadcast.sendBroadcast(NotificationBroadcast.ACTION.REFRESHING_DB_SUCCESS);
                 return null;
             }
-        });
+        },  Task.UI_THREAD_EXECUTOR);
     }
 
     private static Task<Void> deleteNotificationAsync(final long id) {

@@ -25,13 +25,16 @@ import bolts.TaskCompletionSource;
 public class SyncDatabaseProvider {
 
     protected static void syncDBWithServer() {
-        Task.callInBackground(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Log.d("TAG", "sync: database synchronization with server..");
-                return syncDBWithServerAsync().getResult();
-            }
-        });
+        if (!App.getInstance().getState().isServerSyncRunning()) {
+            Log.d("TAG", "sync: database synchronization with server..");
+            App.getInstance().getState().setServerSyncRunning(true);
+            Task.callInBackground(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    return syncDBWithServerAsync().getResult();
+                }
+            });
+        }
     }
 
     private static Task<Void> syncDBWithServerAsync() {
@@ -56,7 +59,7 @@ public class SyncDatabaseProvider {
             public Void then(Task<Void> task) throws Exception {
                 if (task.isCompleted()) {
                     Log.d("TAG", "sync: database synchronization with server: OK");
-                    App.getInstance().getState().setTrackSynchronized(true);
+                    App.getInstance().getState().setServerSyncRunning(false);
                     HomeBroadcast.sendBroadcast(HomeBroadcast.ACTION.SYNCHRONIZATION_SUCCESS);
                 }
                 if (task.isFaulted()) {

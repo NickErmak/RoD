@@ -180,12 +180,12 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         Log.d("TAG", "loading notifications from DB: SUCCESS");
+        App.getInstance().getState().setNotificationsLoading(false);
         notificationHelper.setNotifications(CursorHelper.getNotifications(data));
         adapter.notifyDataSetChanged();
         if (recyclerState != null) {
             recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
         }
-        App.getInstance().getState().setNotificationsLoading(false);
         showProgress(false);
     }
 

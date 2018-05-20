@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,8 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
     private static final int LOADER_ID = 3;
     private static final String KEY_TRACK_ID = "KEY_TRACK_ID";
 
+    private int mapPadding;
+
     private long trackId;
     private List<LatLng> mPoints;
     private SupportMapFragment mMapFragment;
@@ -86,9 +89,11 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         mTvDistance = view.findViewById(R.id.frag_track_distance_value);
         mTvRunTime = view.findViewById(R.id.frag_track_runTime_value);
         mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frag_track_map);
+        mapPadding = getResources().getInteger(R.integer.track_frag_map_padding);
 
         if (App.getInstance().getState().isTrackLoading()) {
             showProgress(true);
@@ -127,15 +132,13 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
             builder.include(point);
         }
         LatLngBounds bounds = builder.build();
-        int padding = 50;
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, mapPadding));
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
-
-        App.getInstance().getState().setTrackLoading(false);
         showProgress(false);
     }
 
     private void loadTrackFromDB() {
+        Log.d("TAG", "loading track from DB..");
         App.getInstance().getState().setTrackLoading(true);
         showProgress(true);
         LoaderManager lm = getLoaderManager();
@@ -154,6 +157,8 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        Log.d("TAG", "loading track from DB: SUCCESS");
+        App.getInstance().getState().setTrackLoading(false);
         if (data != null) {
             if (data.moveToFirst()) {
                 int runTimeColumnIndex = data.getColumnIndex(Track.RUN_TIME);

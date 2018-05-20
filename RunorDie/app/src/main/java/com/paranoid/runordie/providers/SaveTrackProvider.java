@@ -49,7 +49,7 @@ public class SaveTrackProvider {
                 App.getInstance().getState().setTrackSaving(false);
                 return null;
             }
-        });
+        },  Task.UI_THREAD_EXECUTOR);
     }
 
     private static Task<Track> saveDBAsync(final Track track) {

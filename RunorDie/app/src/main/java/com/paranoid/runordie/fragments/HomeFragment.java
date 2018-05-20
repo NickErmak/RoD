@@ -70,7 +70,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
                     if (PreferenceHelper.isFirstLaunch()) {
                         PreferenceHelper.executeFirstLaunch();
                     }
-                    App.getInstance().getState().setServerSyncRunning(false);
+
                     swipeRefreshLayout.setRefreshing(false);
                     loadTracksFromDB();
                     break;
@@ -169,6 +169,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                App.getInstance().getState().setTrackSynchronized(false);
                 refreshPosts();
             }
         });
@@ -184,6 +185,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
     private void loadTracksFromDB() {
         Log.d("TAG", "loading tracks from DB..");
+        App.getInstance().getState().setHomeTracksLoading(true);
         showProgress(true);
         LoaderManager lm = getLoaderManager();
         if (lm.getLoader(LOADER_ID) == null) {
@@ -195,7 +197,6 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
     private void refreshPosts() {
         if (!App.getInstance().getState().isServerSyncRunning()) {
-            App.getInstance().getState().setServerSyncRunning(true);
             SynchronizationProvider.synchronize();
         }
     }
@@ -209,11 +210,11 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         Log.d("TAG", "loading tracks from DB: SUCCESS");
+        App.getInstance().getState().setHomeTracksLoading(false);
         adapter.swapCursor(data);
         if (recyclerState != null) {
             recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
         }
-        App.getInstance().getState().setHomeTracksLoading(false);
         showProgress(false);
     }
 
