@@ -51,14 +51,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="00:00:00.00" />
+                        android:text="@string/run_tv_timer_text"
+                        style="@style/Base.TextAppearance.AppCompat.Large"/>
 
                     <Button
                         android:id="@+id/run_btn_finish"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|center"
-                        android:text="finish" />
+                        android:text="@string/run_btn_finish_text"
+                        style="@style/Base.TextAppearance.AppCompat.Medium"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -72,13 +74,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="00:00:00.00" />
+                        android:text="@string/run_tv_timer_text"
+                        style="@style/Base.TextAppearance.AppCompat.Large"/>
 
                     <TextView
                         android:id="@+id/run_tv_distance_result"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"/>
+                        android:layout_gravity="center"
+                        style="@style/Base.TextAppearance.AppCompat.Large"/>
                 </LinearLayout>
             </ViewFlipper>
         </FrameLayout>

@@ -1,17 +1,14 @@
 package com.paranoid.runordie.models.httpResponses;
 
 public abstract class AbstractResponse {
-
-    public static final String INVALID_TOKEN = "INVALID_TOKEN";
-
     public enum STATUS {
-        ok, error;
+        ok, error
     }
 
     private STATUS status;
     private String code;
 
-    public AbstractResponse() {    }
+    protected AbstractResponse() {    }
 
     public STATUS getStatus() {
         return status;

@@ -37,6 +37,8 @@
     <string name="location_access_request">To continue please turn on JPS.</string>
     <string name="location_access_denied">To continue please turn on JPS.</string>
     <string name="run_finish_error">Finish tracking before return</string>
+    <string name="run_tv_timer_text">00:00:00.00</string>
+    <string name="run_btn_finish_text">finish</string>
 
     <!-- Strings related to Drawer -->
     <string name="drawer_open">open</string>
@@ -63,20 +65,26 @@
     <string name="notification_track_writing_msg">Writing new track</string>
 
     <!-- Strings related to SQL requests -->
-    <string name="sql_select_tracks">
-        SELECT t._id, t.serverId, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime DESC
-    </string>
-    <string name="sql_select_tracks_unsync">
-        SELECT t._id, t.startTime, t.runTime, t.distance, t.points FROM track t WHERE t.serverId is null OR t.serverId = \'\'
-    </string>
-    <string name="sql_select_tracks_server_id">
-        SELECT serverId FROM track
-    </string>
     <string name="sql_select_notifications">
         SELECT n._id, n.executionTime, n.title FROM notification n ORDER BY n.executionTime
     </string>
+    <string name="sql_insert_notification">
+       INSERT INTO notification (executionTime, title) VALUES (?, ?)
+    </string>
+    <string name="sql_update_notification">UPDATE notification SET executionTime = ?, title = ? WHERE _id = ?</string>
+    <string name="sql_delete_notification">DELETE FROM notification WHERE _id = ?</string>
+
     <string name="sql_select_track">
         SELECT t.runTime, t.distance, t.points FROM track t WHERE t._id = ?
+    </string>
+    <string name="sql_select_tracks">
+        SELECT t._id, t.serverId, t.startTime, t.runTime, t.distance FROM track t ORDER BY t.startTime DESC
+    </string>
+    <string name="sql_select_tracks_no_serverId">
+        SELECT t._id, t.startTime, t.runTime, t.distance, t.points FROM track t WHERE t.serverId is null OR t.serverId = \'\'
+    </string>
+    <string name="sql_select_tracks_serverId">
+        SELECT serverId FROM track
     </string>
     <string name="sql_insert_track_no_serverId">
         INSERT INTO track (startTime, distance, runTime, points) VALUES (?, ?, ?, ?)
@@ -84,12 +92,7 @@
     <string name="sql_insert_track">
         INSERT INTO track (startTime, serverId, distance, runTime, points) VALUES (?, ?, ?, ?, ?)
     </string>
-    <string name="sql_update_track_server_id">UPDATE track SET serverId = ? WHERE _id = ?</string>
-    <string name="sql_insert_notification">
-       INSERT INTO notification (executionTime, title) VALUES (?, ?)
-    </string>
-    <string name="sql_update_notification">UPDATE notification SET executionTime = ?, title = ? WHERE _id = ?</string>
-    <string name="sql_delete_notification">DELETE FROM notification WHERE _id = ?</string>
+    <string name="sql_update_track_serverId">UPDATE track SET serverId = ? WHERE _id = ?</string>
 
     <!-- Strings related to Errors -->
 

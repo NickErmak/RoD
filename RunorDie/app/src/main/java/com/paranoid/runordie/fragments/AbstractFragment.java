@@ -1,7 +1,6 @@
 package com.paranoid.runordie.fragments;
 
 import android.content.Context;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -12,7 +11,8 @@ import com.squareup.leakcanary.RefWatcher;
 
 public abstract class AbstractFragment extends Fragment {
 
-    public interface IActivityManager extends IActionBarHandler, IProgressHandler {}
+    public interface IActivityManager extends IActionBarHandler, IProgressHandler {
+    }
 
     private IActivityManager activityManager;
     private String title;

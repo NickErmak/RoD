@@ -1,7 +1,6 @@
 package com.paranoid.runordie.utils;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.paranoid.runordie.App;
@@ -11,10 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 
 public class DistanceUtils {
+    private static int MIN_POINT_COUNT = 2;
 
     public static int getDistance(List<LatLng> points) {
         int distance = 0;
-
+        if (points.size() < MIN_POINT_COUNT) {
+            return distance;
+        }
         float[] result = new float[1];
         Iterator<LatLng> iterator = points.iterator();
 

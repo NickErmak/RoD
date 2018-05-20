@@ -100,12 +100,11 @@ public class MainActivity extends BaseActivity
         if (clearBackStack) {
             fragmentManager.popBackStack(
                     null,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+                    0
             );
         }
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-
         transaction.replace(R.id.main_frame_fragContainer, fragToShow, tag);
         transaction.addToBackStack(tag);
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -118,7 +117,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void logout() {
-        Log.d("TAG", "log out_to_right");
+        Log.d("TAG", "logging out");
         App.getInstance().getState().setActiveSession(null);
         Intent logoutIntent = new Intent(this, AuthActivity.class);
         logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -143,7 +142,7 @@ public class MainActivity extends BaseActivity
                 }
                 break;
             case R.id.nav_main:
-                clearBackStack = false;
+                clearBackStack = true;
                 frag = (AbstractFragment) fragManager.findFragmentByTag(HomeFragment.FRAGMENT_TAG);
                 if (frag == null) {
                     frag = HomeFragment.newInstance();

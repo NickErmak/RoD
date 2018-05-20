@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkUtils {
 
-    public static Retrofit retrofitClient;
+    protected static Retrofit retrofitClient;
 
     static {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();

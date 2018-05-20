@@ -2,7 +2,7 @@ package com.paranoid.runordie.providers;
 
 import android.util.Log;
 
-import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.helpers.database.TrackCrudHelper;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.models.httpResponses.SaveTrackResponse;
 import com.paranoid.runordie.server.ApiClient;
@@ -19,7 +19,7 @@ import bolts.TaskCompletionSource;
 
 class SyncServerProvider {
 
-    protected static void syncServerWithDb(){
+    protected static void syncServerWithDb() {
         Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -44,7 +44,7 @@ class SyncServerProvider {
             @Override
             public Void then(Task<Void> task) throws Exception {
                 if (task.isCompleted()) {
-                    Log.d("TAG", "sync: server synchronization with DB: OK");
+                    Log.d("TAG", "sync: server synchronization with DB: SUCCESS");
                 }
 
                 if (task.isFaulted()) {
@@ -59,7 +59,7 @@ class SyncServerProvider {
         return Task.call(new Callable<List<Track>>() {
             @Override
             public List<Track> call() throws Exception {
-                return DbCrudHelper.loadTracksNoServerId();
+                return TrackCrudHelper.loadTracksNoServerId();
             }
         });
     }
@@ -96,7 +96,7 @@ class SyncServerProvider {
         return Task.call(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                DbCrudHelper.updateTrackServerId(track);
+                TrackCrudHelper.updateTrackServerId(track);
                 return null;
             }
         });

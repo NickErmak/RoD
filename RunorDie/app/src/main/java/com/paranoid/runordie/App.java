@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.paranoid.runordie.helpers.DbOpenHelper;
+import com.paranoid.runordie.helpers.database.DbOpenHelper;
 import com.paranoid.runordie.models.State;
 import com.paranoid.runordie.receivers.ConnectionChangeReceiver;
 import com.squareup.leakcanary.LeakCanary;

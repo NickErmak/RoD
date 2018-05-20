@@ -1,16 +1,12 @@
 package com.paranoid.runordie.models;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 public class Track {
 
-    public static final String _ID = "_id";
+    public static final String DB_ID = "_id";
     public static final String ID = "serverId";
     public static final String START_TIME = "startTime";
     public static final String RUN_TIME = "runTime";
@@ -18,9 +14,9 @@ public class Track {
     public static final String POINTS = "points";
 
     //don't use simple types because of retrofit requests:
-    // in_from_left this case null values won't be send to server
+    // in this case null values won't be send to server
 
-    private Long _id;   //DB id
+    private Long dbId;   //DB id
     private Long id;    // Server id
     private Long beginsAt;
     private Long time;
@@ -32,20 +28,20 @@ public class Track {
     }
 
     public Track(long beginsAt, long time, int distance, List<LatLng> points) {
-        this (null, beginsAt, time, distance, points);
+        this(null, beginsAt, time, distance, points);
     }
 
-    public Track(Long _id, long beginsAt, long time, int distance, List<LatLng> points) {
-        this._id = _id;
+    public Track(Long dbId, long beginsAt, long time, int distance, List<LatLng> points) {
+        this.dbId = dbId;
         this.beginsAt = beginsAt;
         this.time = time;
         this.distance = distance;
         this.points = points;
     }
 
-    public Track(Long id, Long _id, long beginsAt, long time, int distance, List<LatLng> points) {
+    public Track(Long id, Long dbId, long beginsAt, long time, int distance, List<LatLng> points) {
         this.id = id;
-        this._id = _id;
+        this.dbId = dbId;
         this.beginsAt = beginsAt;
         this.time = time;
         this.distance = distance;
@@ -53,11 +49,11 @@ public class Track {
     }
 
     public Long getDbId() {
-        return _id;
+        return dbId;
     }
 
     public void setDbId(Long dbId) {
-        this._id = dbId;
+        this.dbId = dbId;
     }
 
     public long getBeginsAt() {
@@ -103,13 +99,13 @@ public class Track {
     @Override
     public String toString() {
         return "Track{" +
-                "_id=" + _id +
+                "_id=" + dbId +
                 ", id=" + id +
                 ", beginsAt=" + beginsAt +
                 ", time=" + time +
                 ", distance=" + distance +
                 ", points=" + points +
-               '}';
+                '}';
     }
 
     @Override

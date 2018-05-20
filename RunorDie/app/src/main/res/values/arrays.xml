@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- DATABASE TABLES -->
     <string-array name="tables">
         <item>CREATE TABLE track (
             _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -17,5 +18,11 @@
             title TEXT NOT NULL
             )
         </item>
+    </string-array>
+
+    <!-- DATABASE INDEX -->
+    <string-array name="index">
+        <item>CREATE UNIQUE INDEX track_serverId ON track (serverId)</item>
+        <item>CREATE INDEX notification_executionTime ON notification (executionTime)</item>
     </string-array>
 </resources>

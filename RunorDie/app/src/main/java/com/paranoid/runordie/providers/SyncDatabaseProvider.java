@@ -3,7 +3,8 @@ package com.paranoid.runordie.providers;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.App;
+import com.paranoid.runordie.helpers.database.TrackCrudHelper;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.models.TrackListResult;
 import com.paranoid.runordie.models.httpResponses.PointsResponse;
@@ -55,6 +56,7 @@ public class SyncDatabaseProvider {
             public Void then(Task<Void> task) throws Exception {
                 if (task.isCompleted()) {
                     Log.d("TAG", "sync: database synchronization with server: OK");
+                    App.getInstance().getState().setTrackSynchronized(true);
                     HomeBroadcast.sendBroadcast(HomeBroadcast.ACTION.SYNCHRONIZATION_SUCCESS);
                 }
                 if (task.isFaulted()) {
@@ -111,7 +113,7 @@ public class SyncDatabaseProvider {
             @Override
             public TrackListResult call() {
                 Log.d("TAG", "sync: loading tracks from DB..");
-                List<Track> dbTrackList = DbCrudHelper.loadTracksServerIdOnly();
+                List<Track> dbTrackList = TrackCrudHelper.getTracksServerIdOnly();
                 Log.d("TAG", "sync: loading tracks from DB: SUCCESS");
                 return new TrackListResult(
                         TrackListResult.TYPE_FROM.DATABASE,
@@ -164,8 +166,8 @@ public class SyncDatabaseProvider {
         return Task.call(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                DbCrudHelper.insertTrackWithServerId(track);
-                Log.d("TAG", "sync: refreshing track id = " + track.getServerId() + "OK");
+                TrackCrudHelper.insertTrackWithServerId(track);
+                Log.d("TAG", "sync: refreshing track id = " + track.getServerId() + ": SUCCESS");
                 return null;
             }
         });

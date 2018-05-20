@@ -1,7 +1,5 @@
 package com.paranoid.runordie.models;
 
-import com.paranoid.runordie.models.User;
-
 public class Session {
 
     private User user;

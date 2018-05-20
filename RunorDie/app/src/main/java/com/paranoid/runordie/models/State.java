@@ -6,12 +6,12 @@ public class State {
     private Session activeSession;
     private BaseActivity currentActivity = null;
 
+    private boolean isTrackSynchronized;
     private boolean homeTracksLoading;
     private boolean serverSyncRunning;
     private boolean notificationsLoading;
     private boolean notificationDbRefreshing;
     private boolean trackLoading;
-    private boolean trackDbRefreshing;
     private boolean trackSaving;
 
     public Session getActiveSession() {
@@ -70,19 +70,19 @@ public class State {
         this.trackSaving = trackSaving;
     }
 
-    public boolean isTrackDbRefreshing() {
-        return trackDbRefreshing;
-    }
-
-    public void setTrackDbRefreshing(boolean trackDbRefreshing) {
-        this.trackDbRefreshing = trackDbRefreshing;
-    }
-
     public boolean isTrackLoading() {
         return trackLoading;
     }
 
     public void setTrackLoading(boolean trackLoading) {
         this.trackLoading = trackLoading;
+    }
+
+    public boolean isTrackSynchronized() {
+        return isTrackSynchronized;
+    }
+
+    public void setTrackSynchronized(boolean trackSynchronized) {
+        isTrackSynchronized = trackSynchronized;
     }
 }

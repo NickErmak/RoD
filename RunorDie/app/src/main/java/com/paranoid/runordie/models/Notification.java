@@ -1,12 +1,11 @@
 package com.paranoid.runordie.models;
 
 public class Notification {
-
     public enum CRUD_STATUS{
         NONE, INSERT, UPDATE
     }
 
-    public static final String _ID = "_id";
+    public static final String DB_ID = "_id";
     public static final String EXEC_TIME = "executionTime";
     public static final String TITLE = "title";
 
@@ -56,5 +55,15 @@ public class Notification {
 
     public void setCrudStatus(CRUD_STATUS crudStatus) {
         this.crudStatus = crudStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "Notification{" +
+                "id=" + id +
+                ", executionTime=" + executionTime +
+                ", title='" + title + '\'' +
+                ", crudStatus=" + crudStatus +
+                '}';
     }
 }

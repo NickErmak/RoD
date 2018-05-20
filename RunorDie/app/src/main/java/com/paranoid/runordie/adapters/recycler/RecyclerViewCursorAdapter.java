@@ -2,6 +2,7 @@ package com.paranoid.runordie.adapters.recycler;
 
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
@@ -12,17 +13,18 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
     private boolean dataValid;
     private int rowIDColumn;
 
-    public RecyclerViewCursorAdapter(Cursor cursor) {
+    protected RecyclerViewCursorAdapter(Cursor cursor) {
         setHasStableIds(true);
         swapCursor(cursor);
     }
 
-    public abstract VH onCreateViewHolder(ViewGroup parent, int viewType);
+    @NonNull
+    public abstract VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType);
 
     protected abstract void onBindViewHolder(VH holder, Cursor cursor);
 
     @Override
-    public void onBindViewHolder(VH holder, int position) {
+    public void onBindViewHolder(@NonNull VH holder, int position) {
         if (!dataValid) {
             throw new IllegalStateException("this should only be called when the cursor is valid");
         }

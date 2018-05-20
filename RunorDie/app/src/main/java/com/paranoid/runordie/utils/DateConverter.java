@@ -1,18 +1,12 @@
 package com.paranoid.runordie.utils;
 
-
-import android.util.Log;
-
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.SimpleTimeZone;
 
 public class DateConverter {
 
@@ -21,40 +15,26 @@ public class DateConverter {
     private static final int MINUTES_IN_HOURS = 60;
     private static final int HOURS_IN_DAY = 24;
     private static final char SYMBOL_ZERO = '0';
+    private static final char SYMBOL_NEW_LINE = '\n';
+    private static final String timerFormat = App.getInstance().getString(R.string.run_timer_format);
 
-    private static final String timerFormat;
+    public static String getDateString(long date) {
+       return SimpleDateFormat.getDateInstance(DateFormat.MEDIUM).format(new Date(date));
+    }
 
-    private static DateFormat dateFormatter;
-    private static DateFormat timeFormatter;
-    private static String timeFormat;
+    public static String getTimeString(long time) {
+        return SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(time));
+    }
 
-    static {
-        timerFormat = App.getInstance().getString(R.string.run_timer_format);
-
-        dateFormatter = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM);
-        timeFormatter = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
-
-        timeFormat = App.getInstance().getString(R.string.format_runTime);
+    public static String getTimeAndDateString(long date) {
+        return getTimeString(date) +
+                SYMBOL_NEW_LINE +
+                getDateString(date);
     }
 
     public static String getCurrentTimerTime(Long startTime) {
-        long millis = System.currentTimeMillis() - startTime;
-        int seconds = (int) (millis / MILLISECONDS_IN_SECONDS);
-        int minutes = seconds / SECONDS_IN_MINUTE;
-        int hours = minutes / MINUTES_IN_HOURS;
-        millis = (millis % MILLISECONDS_IN_SECONDS) / 10; //show two milliseconds digits
-        seconds = seconds % SECONDS_IN_MINUTE;
-        minutes = minutes % MINUTES_IN_HOURS;
-        hours = hours % HOURS_IN_DAY;
-
-        return String.format(
-                Locale.getDefault(),
-                timerFormat,
-                convertTimeDigit(hours),
-                convertTimeDigit(minutes),
-                convertTimeDigit(seconds),
-                convertTimeDigit(millis)
-        );
+        int millis = (int) (System.currentTimeMillis() - startTime);
+        return parseUnixTimeToTimerTime(millis);
     }
 
     public static String parseUnixTimeToTimerTime(int time) {
@@ -82,42 +62,5 @@ public class DateConverter {
             stringValue = SYMBOL_ZERO + stringValue;
         }
         return stringValue;
-    }
-
-
-
-  /*  public static String parseTimeToString(long time) {
-        return timeFormatter.format(new Date(time));
-    }
-
-*/
-
-
-
-   /* public static Date parseStringToDate(String dateString) {
-
-        Date date = null;
-        try {
-            date = formatter.parse(dateString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return date;
-    }
-
-    public static String parseDateToString(Long date) {
-        return formatter.format(date);
-    }*/
-
-    public static String parseDateToString(long date) {
-        return dateFormatter.format(new Date(date));
-    }
-
-    public static String parseTimeToString(long time) {
-        return timeFormatter.format(new Date(time));
-    }
-
-    public static String parseDateToStringFull(long date) {
-        return parseDateToString(date) + " " + parseTimeToString(date);
     }
 }

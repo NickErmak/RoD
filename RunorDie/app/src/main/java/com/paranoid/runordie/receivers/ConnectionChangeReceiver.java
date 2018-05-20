@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.utils.ConnectionUtils;
 import com.paranoid.runordie.utils.SnackbarUtils;

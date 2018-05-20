@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
-import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.helpers.database.TrackCrudHelper;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.utils.DateConverter;
 import com.paranoid.runordie.utils.DistanceUtils;
@@ -45,7 +45,7 @@ public class TrackFragment extends AbstractFragment implements OnMapReadyCallbac
 
         @Override
         public Cursor loadInBackground() {
-            return DbCrudHelper.getTrack(trackId);
+            return TrackCrudHelper.getTrack(trackId);
         }
     }
 

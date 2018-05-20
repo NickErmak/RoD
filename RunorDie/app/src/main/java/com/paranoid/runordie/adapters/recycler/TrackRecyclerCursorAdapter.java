@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.utils.DateConverter;
@@ -17,41 +16,6 @@ import com.paranoid.runordie.utils.DistanceUtils;
 import static com.paranoid.runordie.fragments.HomeFragment.IOnTrackClickEvent;
 
 public class TrackRecyclerCursorAdapter extends RecyclerViewCursorAdapter<TrackRecyclerCursorAdapter.TrackViewHolder> {
-
-    private final IOnTrackClickEvent onTrackClickEvent;
-
-    public TrackRecyclerCursorAdapter(Cursor cursor, IOnTrackClickEvent onTrackClickEvent) {
-        super(null);
-        this.onTrackClickEvent = onTrackClickEvent;
-        swapCursor(cursor);
-    }
-
-    @NonNull
-    @Override
-    public TrackViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_track, parent, false);
-        return new TrackViewHolder(view, onTrackClickEvent);
-    }
-
-    @Override
-    protected void onBindViewHolder(TrackViewHolder holder, Cursor cursor) {
-        int idColumnIndex = cursor.getColumnIndex(Track._ID);
-        int startTimeColumnIndex = cursor.getColumnIndex(Track.START_TIME);
-        int runTimeColumnIndex = cursor.getColumnIndex(Track.RUN_TIME);
-        int distanceColumnIndex = cursor.getColumnIndex(Track.DISTANCE);
-
-        long id = cursor.getLong(idColumnIndex);
-        long startTime = cursor.getLong(startTimeColumnIndex);
-        int runTime = cursor.getInt(runTimeColumnIndex);
-        int distance = cursor.getInt(distanceColumnIndex);
-
-        //todo
-        holder.id = id;
-        holder.mTvTrackStartTime.setText(DateConverter.parseDateToString(startTime) + '\n' + DateConverter.parseTimeToString(startTime));
-        holder.mTvTrackRunTime.setText(DateConverter.parseUnixTimeToTimerTime(runTime));
-        holder.mTvTrackDistance.setText(DistanceUtils.getDistanceFormat(distance));
-    }
 
     public static class TrackViewHolder extends RecyclerView.ViewHolder {
         long id;
@@ -71,5 +35,39 @@ public class TrackRecyclerCursorAdapter extends RecyclerViewCursorAdapter<TrackR
             mTvTrackRunTime = (TextView) v.findViewById(R.id.list_track_runTime_value);
             mTvTrackDistance = (TextView) v.findViewById(R.id.list_track_distance_value);
         }
+    }
+
+    private final IOnTrackClickEvent onTrackClickEvent;
+
+    public TrackRecyclerCursorAdapter(Cursor cursor, IOnTrackClickEvent onTrackClickEvent) {
+        super(null);
+        this.onTrackClickEvent = onTrackClickEvent;
+        swapCursor(cursor);
+    }
+
+    @NonNull
+    @Override
+    public TrackViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.list_track, parent, false);
+        return new TrackViewHolder(view, onTrackClickEvent);
+    }
+
+    @Override
+    protected void onBindViewHolder(TrackViewHolder holder, Cursor cursor) {
+        int idColumnIndex = cursor.getColumnIndex(Track.DB_ID);
+        int startTimeColumnIndex = cursor.getColumnIndex(Track.START_TIME);
+        int runTimeColumnIndex = cursor.getColumnIndex(Track.RUN_TIME);
+        int distanceColumnIndex = cursor.getColumnIndex(Track.DISTANCE);
+
+        long id = cursor.getLong(idColumnIndex);
+        long startTime = cursor.getLong(startTimeColumnIndex);
+        int runTime = cursor.getInt(runTimeColumnIndex);
+        int distance = cursor.getInt(distanceColumnIndex);
+
+        holder.id = id;
+        holder.mTvTrackStartTime.setText(DateConverter.getTimeAndDateString(startTime));
+        holder.mTvTrackRunTime.setText(DateConverter.parseUnixTimeToTimerTime(runTime));
+        holder.mTvTrackDistance.setText(DistanceUtils.getDistanceFormat(distance));
     }
 }

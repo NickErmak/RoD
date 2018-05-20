@@ -3,7 +3,7 @@ package com.paranoid.runordie.providers;
 import android.util.Log;
 
 import com.paranoid.runordie.App;
-import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.helpers.database.NotificationCrudHelper;
 import com.paranoid.runordie.models.Notification;
 import com.paranoid.runordie.utils.broadcastUtils.NotificationBroadcast;
 
@@ -21,6 +21,8 @@ public class NotificationRefreshDbProvider {
             List<Notification> notificationsForRefresh,
             Set<Long> notificationIdListForDeleting) {
         if (!App.getInstance().getState().isNotificationDbRefreshing()) {
+            Log.d("TAG", "Refreshing notifications..");
+            App.getInstance().getState().setNotificationDbRefreshing(true);
             refreshNotificationsAsync(notificationsForRefresh, notificationIdListForDeleting).getResult();
         }
     }
@@ -38,9 +40,15 @@ public class NotificationRefreshDbProvider {
             refreshTasks.add(deleteNotificationAsync(id));
         }
 
-        return Task.whenAll(refreshTasks).onSuccess(new Continuation<Void, Void>() {
+        return Task.whenAll(refreshTasks).continueWith(new Continuation<Void, Void>() {
             @Override
             public Void then(Task<Void> task) {
+                if (task.isCompleted()) {
+                    Log.d("TAG", "Refreshing notifications: SUCCESS");
+                } else if (task.isFaulted()) {
+                    Log.e("TAG", "Refreshing notifications: ERROR " + task.getError().getMessage());
+                }
+                App.getInstance().getState().setNotificationDbRefreshing(false);
                 NotificationBroadcast.sendBroadcast(NotificationBroadcast.ACTION.REFRESHING_DB_SUCCESS);
                 return null;
             }
@@ -51,8 +59,7 @@ public class NotificationRefreshDbProvider {
         return Task.callInBackground(new Callable<Void>() {
             @Override
             public Void call() {
-                DbCrudHelper.deleteNotification(id);
-                Log.e("TAG", "delete note");
+                NotificationCrudHelper.deleteNotification(id);
                 return null;
             }
         });
@@ -64,12 +71,10 @@ public class NotificationRefreshDbProvider {
             public Void call() {
                 switch (notification.getCrudStatus()) {
                     case INSERT:
-                        DbCrudHelper.insertNotification(notification);
-                        Log.e("TAG", "insert note");
+                        NotificationCrudHelper.insertNotification(notification);
                         break;
                     case UPDATE:
-                        DbCrudHelper.updateNotification(notification);
-                        Log.e("TAG", "update note");
+                        NotificationCrudHelper.updateNotification(notification);
                         break;
                 }
                 notification.setCrudStatus(Notification.CRUD_STATUS.NONE);

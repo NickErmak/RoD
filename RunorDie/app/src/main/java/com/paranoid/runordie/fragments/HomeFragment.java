@@ -26,8 +26,8 @@ import com.paranoid.runordie.R;
 import com.paranoid.runordie.activities.RunActivity;
 import com.paranoid.runordie.adapters.recycler.RecyclerViewCursorAdapter;
 import com.paranoid.runordie.adapters.recycler.TrackRecyclerCursorAdapter;
-import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.helpers.PreferenceHelper;
+import com.paranoid.runordie.helpers.database.TrackCrudHelper;
 import com.paranoid.runordie.providers.SynchronizationProvider;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
 import com.paranoid.runordie.utils.broadcastUtils.HomeBroadcast;
@@ -45,7 +45,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
 
         @Override
         public Cursor loadInBackground() {
-            return DbCrudHelper.loadTrackCursor();
+            return TrackCrudHelper.loadTrackCursor();
         }
     }
 
@@ -57,6 +57,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     private RecyclerViewCursorAdapter<TrackRecyclerCursorAdapter.TrackViewHolder> adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
+    private Parcelable recyclerState;
     private IOnTrackClickEvent onTrackClickEvent;
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -66,6 +67,9 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
             switch (action) {
                 case SYNCHRONIZATION_SUCCESS:
                     Log.d("TAG", "Broadcast (home fragment): synchronization success");
+                    if (PreferenceHelper.isFirstLaunch()) {
+                        PreferenceHelper.executeFirstLaunch();
+                    }
                     App.getInstance().getState().setServerSyncRunning(false);
                     swipeRefreshLayout.setRefreshing(false);
                     loadTracksFromDB();
@@ -174,8 +178,7 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
         if (savedInstanceState != null) {
-            Parcelable recyclerState = savedInstanceState.getParcelable(RECYCLER_STATE_KEY);
-            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
+            recyclerState = savedInstanceState.getParcelable(RECYCLER_STATE_KEY);
         }
     }
 
@@ -207,6 +210,9 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         Log.d("TAG", "loading tracks from DB: SUCCESS");
         adapter.swapCursor(data);
+        if (recyclerState != null) {
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
+        }
         App.getInstance().getState().setHomeTracksLoading(false);
         showProgress(false);
     }

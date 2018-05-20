@@ -26,7 +26,6 @@ import com.paranoid.runordie.utils.SnackbarUtils;
 import java.util.LinkedList;
 import java.util.List;
 
-
 public class LocationService extends Service implements LocationListener {
 
     public class LocationBinder extends Binder {
@@ -50,29 +49,17 @@ public class LocationService extends Service implements LocationListener {
     private Location bestLocation;
     private List<LatLng> points;
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public int getDistance() {
-        return DistanceUtils.getDistance(points);
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
     }
-
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         isActive = false;
+        startTime = System.currentTimeMillis();
         points = new LinkedList<>();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         notificationMsg = getString(R.string.notification_track_writing_msg);
@@ -82,7 +69,7 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startTime = System.currentTimeMillis();
+
         if (!isActive && LocationHelper.checkLocationPermission()) {
             isActive = true;
 
@@ -126,7 +113,6 @@ public class LocationService extends Service implements LocationListener {
                     points
             );
             SaveTrackProvider.saveTrack(track);
-
         } else {
             Log.e("TAG", shortDistanceError);
             SnackbarUtils.showSnack(shortDistanceError);
@@ -145,17 +131,26 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
     }
 
     @Override
     public void onProviderDisabled(String provider) {
+    }
 
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public int getDistance() {
+        return DistanceUtils.getDistance(points);
     }
 
     public boolean isActive() {

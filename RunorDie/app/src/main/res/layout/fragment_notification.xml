@@ -29,11 +29,4 @@
         android:clickable="true"
         android:focusable="true"/>
 
-    <Button
-        android:id="@+id/frag_notification_btn_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/frag_notification_btn_save_text"
-        android:layout_gravity="bottom|center_horizontal"/>
-
 </android.support.design.widget.CoordinatorLayout>

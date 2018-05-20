@@ -29,8 +29,8 @@ import com.paranoid.runordie.controllers.SwipeController;
 import com.paranoid.runordie.dialogs.MyDatePickerDialog;
 import com.paranoid.runordie.dialogs.MyTimePickerDialog;
 import com.paranoid.runordie.helpers.CursorHelper;
-import com.paranoid.runordie.helpers.DbCrudHelper;
 import com.paranoid.runordie.helpers.NotificationHelper;
+import com.paranoid.runordie.helpers.database.NotificationCrudHelper;
 import com.paranoid.runordie.utils.SimpleCursorLoader;
 import com.paranoid.runordie.utils.SnackbarUtils;
 import com.paranoid.runordie.utils.broadcastUtils.NotificationBroadcast;
@@ -45,7 +45,7 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
 
         @Override
         public Cursor loadInBackground() {
-            return DbCrudHelper.loadNotifications();
+            return NotificationCrudHelper.loadNotifications();
         }
     }
 
@@ -59,6 +59,7 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
     private NotificationRecyclerAdapter adapter;
 
     private RecyclerView recyclerView;
+    private Parcelable recyclerState;
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -67,7 +68,6 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
             switch (action) {
                 case REFRESHING_DB_SUCCESS:
                     Log.d("TAG", "Broadcast (notification fragment): refreshing DB success");
-                    App.getInstance().getState().setNotificationDbRefreshing(false);
                     loadNotificationsFromDB();
                     break;
             }
@@ -96,13 +96,6 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = view.findViewById(R.id.frag_notification_rv_notifications);
-        view.findViewById(R.id.frag_notification_btn_save).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getFragmentManager().popBackStack();
-            }
-        });
-
         notificationHelper = new NotificationHelper();
         setFab((FloatingActionButton) view.findViewById(R.id.frag_notification_fab));
         setRecycler(recyclerView, savedInstanceState);
@@ -162,13 +155,13 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
         itemTouchhelper.attachToRecyclerView(recyclerView);
 
         if (savedInstanceState != null) {
-            Parcelable recyclerState = savedInstanceState.getParcelable(RECYCLER_STATE_KEY);
-            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
+            recyclerState = savedInstanceState.getParcelable(RECYCLER_STATE_KEY);
         }
     }
 
     private void loadNotificationsFromDB() {
         Log.d("TAG", "loading notifications from DB..");
+        App.getInstance().getState().setNotificationsLoading(true);
         showProgress(true);
         LoaderManager lm = getLoaderManager();
         if (lm.getLoader(LOADER_ID) == null) {
@@ -189,6 +182,9 @@ public class NotificationFragment extends AbstractFragment implements LoaderMana
         Log.d("TAG", "loading notifications from DB: SUCCESS");
         notificationHelper.setNotifications(CursorHelper.getNotifications(data));
         adapter.notifyDataSetChanged();
+        if (recyclerState != null) {
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerState);
+        }
         App.getInstance().getState().setNotificationsLoading(false);
         showProgress(false);
     }

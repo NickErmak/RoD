@@ -14,7 +14,7 @@ public class CursorHelper {
 
         if (data != null) {
             if (data.moveToFirst()) {
-                int idIndex = data.getColumnIndexOrThrow(Notification._ID);
+                int idIndex = data.getColumnIndexOrThrow(Notification.DB_ID);
                 int execTimeIndex = data.getColumnIndexOrThrow(Notification.EXEC_TIME);
                 int titleIndex = data.getColumnIndexOrThrow(Notification.TITLE);
 

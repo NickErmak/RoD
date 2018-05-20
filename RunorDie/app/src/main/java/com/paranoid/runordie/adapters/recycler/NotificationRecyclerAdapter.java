@@ -12,11 +12,9 @@ import android.widget.TextView;
 
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.Notification;
+import com.paranoid.runordie.utils.DateConverter;
 
 import java.util.List;
-
-import static com.paranoid.runordie.utils.DateConverter.parseDateToString;
-import static com.paranoid.runordie.utils.DateConverter.parseTimeToString;
 
 public class NotificationRecyclerAdapter extends RecyclerView.Adapter<NotificationRecyclerAdapter.ViewHolder>{
 
@@ -97,8 +95,8 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
         holder.execTime = execTime;
         holder.title = title;
         holder.etTitle.setText(title);
-        holder.btnExecTime.setText(parseTimeToString(execTime));
-        holder.btnExecDate.setText(parseDateToString(execTime));
+        holder.btnExecTime.setText(DateConverter.getTimeString(execTime));
+        holder.btnExecDate.setText(DateConverter.getDateString(execTime));
     }
 
     @Override

@@ -1,11 +1,6 @@
 package com.paranoid.runordie.activities;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,31 +13,10 @@ import com.paranoid.runordie.api.activities.IActionBarHandler;
 import com.paranoid.runordie.api.activities.IProgressHandler;
 import com.paranoid.runordie.api.activities.IRootLayoutHandler;
 
-import static com.paranoid.runordie.utils.broadcastUtils.AppBroadcast.ACTION;
-import static com.paranoid.runordie.utils.broadcastUtils.AppBroadcast.BROADCAST_ACTION;
-import static com.paranoid.runordie.utils.broadcastUtils.AppBroadcast.EXTRA_ACTION;
-
 public abstract class BaseActivity extends AppCompatActivity implements IActionBarHandler, IProgressHandler, IRootLayoutHandler {
 
     private Toolbar toolbar;
     private View progressView;
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.e("TAG", "broadcast received (base activity)");
-            ACTION action = (ACTION) intent.getSerializableExtra(EXTRA_ACTION);
-            switch (action) {
-                case SUCCESS_LOGIN:
-                    Intent routeMainIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    routeMainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(routeMainIntent);
-                    break;
-                case STOP_REFRESHING:
-                    showProgress(false);
-                    break;
-            }
-        }
-    };
 
     @Override
     public void setContentView(int layoutResID) {
@@ -68,17 +42,12 @@ public abstract class BaseActivity extends AppCompatActivity implements IActionB
     protected void onStart() {
         super.onStart();
         App.getInstance().getState().setCurrentActivity(this);
-        LocalBroadcastManager.getInstance(App.getInstance()).registerReceiver(
-                receiver,
-                new IntentFilter(BROADCAST_ACTION)
-        );
     }
 
     @Override
     protected void onStop() {
         clearReferences();
         super.onStop();
-        LocalBroadcastManager.getInstance(App.getInstance()).unregisterReceiver(receiver);
     }
 
     @Override

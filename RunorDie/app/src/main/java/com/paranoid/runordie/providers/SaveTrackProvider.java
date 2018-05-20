@@ -3,7 +3,7 @@ package com.paranoid.runordie.providers;
 import android.util.Log;
 
 import com.paranoid.runordie.App;
-import com.paranoid.runordie.helpers.DbCrudHelper;
+import com.paranoid.runordie.helpers.database.TrackCrudHelper;
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.models.httpResponses.SaveTrackResponse;
 import com.paranoid.runordie.server.ApiClient;
@@ -56,7 +56,7 @@ public class SaveTrackProvider {
         return Task.call(new Callable<Track>() {
             @Override
             public Track call() {
-                long dbId = DbCrudHelper.insertTrackNoServerId(track);
+                long dbId = TrackCrudHelper.insertTrackNoServerId(track);
                 track.setDbId(dbId);
                 return track;
             }
@@ -90,7 +90,7 @@ public class SaveTrackProvider {
         return Task.call(new Callable<Void>() {
             @Override
             public Void call() {
-                DbCrudHelper.updateTrackServerId(track);
+                TrackCrudHelper.updateTrackServerId(track);
                 return null;
             }
         });

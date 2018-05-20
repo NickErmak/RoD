@@ -9,11 +9,11 @@ public class NetworkException extends RuntimeException {
     private static final String DEFAULT_ERROR_CODE = "NETWORK_ERROR";
     private final String errorCode;
 
-    public NetworkException(AbstractResponse response) {
+    protected NetworkException(AbstractResponse response) {
         errorCode = response.getCode();
     }
 
-    public NetworkException(Throwable t) {
+    protected NetworkException(Throwable t) {
         errorCode = DEFAULT_ERROR_CODE;
         Log.e("TAG", "Network Exception: " + t.getMessage());
     }

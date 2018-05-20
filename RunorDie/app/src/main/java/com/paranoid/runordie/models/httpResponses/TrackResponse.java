@@ -6,7 +6,7 @@ import java.util.List;
 
 public class TrackResponse extends AbstractResponse {
 
-    List<Track> tracks;
+    private List<Track> tracks;
 
     public List<Track> getTracks() {
         return tracks;

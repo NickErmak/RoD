@@ -89,7 +89,7 @@ public class NotificationHelper {
         if (nextExecuteNotification != null) {
             AlarmManagerUtils.setAlarm(nextExecuteNotification);
             Log.d("TAG", "Next notification will execute at "
-                    + DateConverter.parseDateToStringFull(nextExecuteNotification.getExecutionTime()));
+                    + DateConverter.getTimeAndDateString(nextExecuteNotification.getExecutionTime()));
         } else {
             AlarmManagerUtils.deleteAlarm();
             Log.d("TAG", "No next notifications");

@@ -10,11 +10,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -28,14 +25,8 @@ import com.paranoid.runordie.utils.DistanceUtils;
 import com.paranoid.runordie.utils.PermissionUtils;
 import com.paranoid.runordie.utils.SnackbarUtils;
 
-
 public class RunActivity extends BaseActivity {
 
-    private String jpsAccessNotGrantedMsg;
-    private String finishBeforeReturnMsg;
-
-    private LocationService locationService;
-    boolean bound = false;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -44,8 +35,7 @@ public class RunActivity extends BaseActivity {
             locationService = binder.getService();
             if (locationService != null) {
                 viewFlipper.showNext();
-                timerHelper.setStartTime(locationService.getStartTime());
-                timerHelper.startTimer();
+                timerHelper.startTimer(locationService.getStartTime());
             }
             bound = true;
         }
@@ -62,6 +52,10 @@ public class RunActivity extends BaseActivity {
     private TextView tvTimerResult;
     private TextView tvDistanceResult;
 
+    private String jpsAccessNotGrantedMsg;
+    private String finishBeforeReturnMsg;
+    private LocationService locationService;
+    boolean bound = false;
     private TimerHelper timerHelper;
     private Handler timerHandler = new Handler();
 
@@ -73,8 +67,7 @@ public class RunActivity extends BaseActivity {
 
         initViews();
         initFromResources();
-        long startTime = (locationService != null) ? locationService.getStartTime() : TimerHelper.START_TIME_FIRST_LAUNCH;
-        timerHelper = new TimerHelper(tvTimer, timerHandler, startTime);
+        timerHelper = new TimerHelper(tvTimer, timerHandler);
     }
 
     private void initViews() {
@@ -89,20 +82,14 @@ public class RunActivity extends BaseActivity {
         findViewById(R.id.run_ib_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startRunning();
+                startTrackWriting();
             }
         });
 
         findViewById(R.id.run_btn_finish).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //todo
-                stopService(new Intent(getApplicationContext(), LocationService.class));
-                timerHelper.stopTimer();
-                long s = timerHelper.getStartTime();
-                tvTimerResult.setText(DateConverter.getCurrentTimerTime(s));
-                tvDistanceResult.setText(DistanceUtils.getDistanceFormat(locationService.getDistance()));
-                viewFlipper.showNext();
+                finishTrackWriting();
             }
         });
     }
@@ -112,12 +99,19 @@ public class RunActivity extends BaseActivity {
         finishBeforeReturnMsg = getString(R.string.run_finish_error);
     }
 
-    private void startRunning() {
+    private void startTrackWriting() {
         if (LocationHelper.checkLocationPermission() && LocationHelper.checkLocationAccess()) {
-            //todo logic
             startService(new Intent(this, LocationService.class));
-            timerHelper.startTimer();
         }
+    }
+
+    private void finishTrackWriting() {
+        long startTime = locationService.getStartTime();
+        stopService(new Intent(this, LocationService.class));
+        timerHelper.stopTimer();
+        tvTimerResult.setText(DateConverter.getCurrentTimerTime(startTime));
+        tvDistanceResult.setText(DistanceUtils.getDistanceFormat(locationService.getDistance()));
+        viewFlipper.showNext();
     }
 
     @Override
@@ -125,7 +119,7 @@ public class RunActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case LocationHelper.LOCATION_REQUEST_CODE:
-                startRunning();
+                startTrackWriting();
                 break;
         }
     }
@@ -136,7 +130,7 @@ public class RunActivity extends BaseActivity {
             case PermissionUtils.MY_PERMISSIONS_REQUEST:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("TAG", "permission access_fine_location: granted");
-                    startRunning();
+                    startTrackWriting();
                 } else {
                     Log.d("TAG", "permission access_fine_location: not granted");
                     SnackbarUtils.showSnack(jpsAccessNotGrantedMsg);
@@ -157,11 +151,9 @@ public class RunActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (locationService != null) {
-            locationService.setStartTime(timerHelper.getStartTime());
-        }
         unbindService(mConnection);
         bound = false;
+        timerHelper.stopTimer();
     }
 
     @Override

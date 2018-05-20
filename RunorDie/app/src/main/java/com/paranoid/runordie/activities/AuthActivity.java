@@ -3,7 +3,6 @@ package com.paranoid.runordie.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
@@ -13,7 +12,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
 import com.paranoid.runordie.models.User;
 import com.paranoid.runordie.models.httpResponses.LoginResponse;

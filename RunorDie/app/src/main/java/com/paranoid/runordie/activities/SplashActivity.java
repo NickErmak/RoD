@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.paranoid.runordie.App;
@@ -63,7 +64,7 @@ public class SplashActivity extends BaseActivity {
         if (user == null) {
             routeToAuth();
         } else {
-            routeToMain(user);
+            routeNext(user);
         }
     }
 
@@ -72,7 +73,7 @@ public class SplashActivity extends BaseActivity {
         finish();
     }
 
-    private void routeToMain(final User user) {
+    private void routeNext(final User user) {
         ApiClient.getInstance().login(user, new Callback<LoginResponse>() {
             @Override
             public void success(LoginResponse result) {
@@ -83,7 +84,12 @@ public class SplashActivity extends BaseActivity {
                 if (routeActivity != null) {
                     switch (routeActivity) {
                         case RUN_ACTIVITY:
-                            startActivity(new Intent(getApplicationContext(), RunActivity.class));
+                            TaskStackBuilder.create(getApplicationContext())
+                                    .addNextIntentWithParentStack(
+                                            new Intent(getApplicationContext(),
+                                                    RunActivity.class)
+                                    )
+                                    .startActivities();
                             break;
                     }
                 } else {

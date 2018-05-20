@@ -1,7 +1,5 @@
 package com.paranoid.runordie.server;
 
-import android.util.Log;
-
 import com.paranoid.runordie.models.Track;
 import com.paranoid.runordie.models.User;
 import com.paranoid.runordie.models.httpResponses.LoginResponse;
@@ -11,12 +9,7 @@ import com.paranoid.runordie.models.httpResponses.SaveTrackResponse;
 import com.paranoid.runordie.models.httpResponses.TrackResponse;
 import com.paranoid.runordie.server.services.ServerService;
 
-import java.io.IOException;
-import java.util.List;
-
-//TODO: CATCH ALL ERRORS
 public class ApiClient {
-
     private static volatile ApiClient instance;
     private ServerService serverServiceInstance;
 
