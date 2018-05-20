@@ -18,22 +18,24 @@ import static com.paranoid.runordie.fragments.HomeFragment.IOnTrackClickEvent;
 public class TrackRecyclerCursorAdapter extends RecyclerViewCursorAdapter<TrackRecyclerCursorAdapter.TrackViewHolder> {
 
     public static class TrackViewHolder extends RecyclerView.ViewHolder {
+        View view;
         long id;
         TextView mTvTrackStartTime;
         TextView mTvTrackRunTime;
         TextView mTvTrackDistance;
 
-        TrackViewHolder(View v, final IOnTrackClickEvent onTrackClickEvent) {
-            super(v);
-            v.setOnClickListener(new View.OnClickListener() {
+        TrackViewHolder(View view, final IOnTrackClickEvent onTrackClickEvent) {
+            super(view);
+            this.view = view;
+            view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onTrackClickEvent.onTrackClick(id);
                 }
             });
-            mTvTrackStartTime = (TextView) v.findViewById(R.id.list_track_startTime_value);
-            mTvTrackRunTime = (TextView) v.findViewById(R.id.list_track_runTime_value);
-            mTvTrackDistance = (TextView) v.findViewById(R.id.list_track_distance_value);
+            mTvTrackStartTime = (TextView) view.findViewById(R.id.list_track_startTime_value);
+            mTvTrackRunTime = (TextView) view.findViewById(R.id.list_track_runTime_value);
+            mTvTrackDistance = (TextView) view.findViewById(R.id.list_track_distance_value);
         }
     }
 
@@ -69,5 +71,11 @@ public class TrackRecyclerCursorAdapter extends RecyclerViewCursorAdapter<TrackR
         holder.mTvTrackStartTime.setText(DateConverter.getTimeAndDateString(startTime));
         holder.mTvTrackRunTime.setText(DateConverter.parseUnixTimeToTimerTime(runTime));
         holder.mTvTrackDistance.setText(DistanceUtils.getDistanceFormat(distance));
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull TrackViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.view.setOnClickListener(null);
     }
 }

@@ -114,15 +114,15 @@ public class HomeFragment extends AbstractFragment implements LoaderManager.Load
         setRecycler(recyclerView, savedInstanceState);
         setSwipeRefresh(swipeRefreshLayout);
 
-        if (PreferenceHelper.isFirstLaunch()) {
-            loadTracksFromDB();
-        }
-
         if (App.getInstance().getState().isServerSyncRunning() ||
                 App.getInstance().getState().isHomeTracksLoading()) {
             showProgress(true);
         } else {
             refreshPosts();
+        }
+
+        if (!PreferenceHelper.isFirstLaunch()) {
+            loadTracksFromDB();
         }
     }
 

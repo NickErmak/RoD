@@ -1,12 +1,15 @@
 package com.paranoid.runordie.activities;
 
 import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.view.View;
 
 import com.paranoid.runordie.App;
 import com.paranoid.runordie.R;
@@ -17,10 +20,14 @@ import com.paranoid.runordie.models.httpResponses.LoginResponse;
 import com.paranoid.runordie.server.ApiClient;
 import com.paranoid.runordie.server.Callback;
 import com.paranoid.runordie.server.NetworkException;
-import com.paranoid.runordie.utils.AnimationUtils;
 import com.paranoid.runordie.utils.SnackbarUtils;
 
 public class SplashActivity extends BaseActivity {
+    private static ObjectAnimator anim = (ObjectAnimator) AnimatorInflater.loadAnimator(
+            App.getInstance(),
+            R.animator.logo_rotation
+    );
+
     public enum ROUTE {
         RUN_ACTIVITY
     }
@@ -46,10 +53,19 @@ public class SplashActivity extends BaseActivity {
         Bundle extras = getIntent().getExtras();
         routeActivity = (extras != null) ? (ROUTE) extras.getSerializable(ROUTE_KEY) : null;
 
-        AnimationUtils.setLogoAnimation(
-                findViewById(R.id.splash_logo),
-                animFinishListener
-        );
+        startAnimation(findViewById(R.id.splash_logo));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        anim.addListener(animFinishListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        anim.removeAllListeners();
     }
 
     private void setupActionBar() {
@@ -57,6 +73,12 @@ public class SplashActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
+    }
+
+    private void startAnimation(View logo) {
+        logo.removeCallbacks(Thread.currentThread());
+        anim.setTarget(logo);
+        anim.start();
     }
 
     private void route() {
